@@ -1,6 +1,5 @@
 DAY=$1
-echo "pub use crate::utils::*;
-use rayon::prelude::*;
+echo "use crate::utils::*;
 
 pub fn run() {
 	#[allow(unused_variables)]

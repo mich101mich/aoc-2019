@@ -4,6 +4,8 @@ pub use std::collections::HashMap;
 pub use std::collections::HashSet;
 pub use std::io::Write;
 pub use std::str::FromStr;
+pub use rayon::prelude::*;
+pub use rand::prelude::*;
 
 macro_rules! pv {
 	($var: expr) => {

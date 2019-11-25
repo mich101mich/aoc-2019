@@ -1,5 +1,6 @@
 DAY=$1
 echo "pub use crate::utils::*;
+use rayon::prelude::*;
 
 pub fn run() {
 	#[allow(unused_variables)]
@@ -7,17 +8,18 @@ pub fn run() {
 	let input = "";
 	
 	
-}
-" > src/days/day_$DAY.rs
+}" > src/days/day_$DAY.rs
 
-echo "mod utils;
+echo "#![allow(unused_imports)]
+
+#[macro_use]
+mod utils;
 mod days;
 use days::*;
 
 fn main() {
     day_$DAY::run();
-}
-" > src/main.rs
+}" > src/main.rs
 
 echo "
 pub mod day_$DAY;" >> src/days/mod.rs

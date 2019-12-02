@@ -1,16 +1,25 @@
 #![allow(unused)]
 
+pub use rand::prelude::*;
+pub use rayon::prelude::*;
 pub use std::collections::HashMap;
 pub use std::collections::HashSet;
 pub use std::io::Write;
 pub use std::str::FromStr;
-pub use rayon::prelude::*;
-pub use rand::prelude::*;
 
 macro_rules! pv {
 	($var: expr) => {
 		println!("{}: {:?}", stringify!($var), $var)
 	};
+}
+
+macro_rules! scanf {
+    ( $instr:expr, $fmt:expr, $($($args:tt)::*),* ) => {
+        {
+            let mut res = scan_fmt::parse::scan( $instr, $fmt ) ;
+            ($(scan_fmt::scan_fmt_help!(wrap res,$($args)::*).unwrap_or_else(|| panic!("Failed to parse {}", stringify!($expr)))),*)
+        }
+    };
 }
 
 pub trait IterExt<T> {

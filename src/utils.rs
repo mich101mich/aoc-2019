@@ -13,6 +13,34 @@ macro_rules! pv {
 	};
 }
 
+pub fn int_code(memory: &mut [i32]) -> usize {
+	let mut index = 0;
+	let mut inst_count = 0;
+	loop {
+		match memory[index] {
+			1 => {
+				let a = memory[index + 1] as usize;
+				let b = memory[index + 2] as usize;
+				let out = memory[index + 3] as usize;
+				memory[out] = memory[a] + memory[b];
+				index += 4;
+			}
+			2 => {
+				let a = memory[index + 1] as usize;
+				let b = memory[index + 2] as usize;
+				let out = memory[index + 3] as usize;
+				memory[out] = memory[a] * memory[b];
+				index += 4;
+			}
+			99 => break,
+			_ => panic!("invalid opcode"),
+		}
+		inst_count += 1;
+	}
+	pv!(memory);
+	inst_count
+}
+
 macro_rules! scanf {
     ( $instr:expr, $fmt:expr, $($($args:tt)::*),* ) => {
         {

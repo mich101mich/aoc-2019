@@ -1,5 +1,6 @@
 use crate::utils::*;
 
+#[allow(unused)]
 pub fn run() {
 	#[allow(unused_variables)]
 	let input = include_str!("../input/3.txt");

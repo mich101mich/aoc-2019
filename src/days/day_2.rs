@@ -1,5 +1,6 @@
 use crate::utils::*;
 
+#[allow(unused)]
 pub fn run() {
 	#[allow(unused_variables)]
 	let input = include_str!("../input/2.txt");
@@ -40,7 +41,7 @@ pub fn run() {
 				}
 				index += 4;
 			}
-			if parsed[0] == 19690720 {
+			if parsed[0] == 19_690_720 {
 				println!("a: {:?}", a);
 				println!("b: {:?}", b);
 				pv!(100 * a + b);

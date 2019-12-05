@@ -17,19 +17,126 @@ pub fn int_code(memory: &mut [i32]) -> usize {
 	let mut index = 0;
 	let mut inst_count = 0;
 	loop {
-		match memory[index] {
+		let op = memory[index];
+		let p0 = (op / 100) % 10;
+		let p1 = (op / 1000) % 10;
+		let p2 = (op / 10000) % 10;
+		let op = op % 100;
+		match op {
 			1 => {
-				let a = memory[index + 1] as usize;
-				let b = memory[index + 2] as usize;
-				let out = memory[index + 3] as usize;
-				memory[out] = memory[a] + memory[b];
+				let a = if p0 == 0 {
+					memory[memory[index + 1] as usize]
+				} else {
+					memory[index + 1]
+				};
+				let b = if p1 == 0 {
+					memory[memory[index + 2] as usize]
+				} else {
+					memory[index + 2]
+				};
+				if p2 == 0 {
+					memory[memory[index + 3] as usize] = a + b;
+				} else {
+					panic!("output is value");
+				};
 				index += 4;
 			}
 			2 => {
-				let a = memory[index + 1] as usize;
-				let b = memory[index + 2] as usize;
-				let out = memory[index + 3] as usize;
-				memory[out] = memory[a] * memory[b];
+				let a = if p0 == 0 {
+					memory[memory[index + 1] as usize]
+				} else {
+					memory[index + 1]
+				};
+				let b = if p1 == 0 {
+					memory[memory[index + 2] as usize]
+				} else {
+					memory[index + 2]
+				};
+				if p2 != 0 {
+					panic!("output is value");
+				}
+				memory[memory[index + 3] as usize] = a * b;
+				index += 4;
+			}
+			3 => {
+				memory[memory[index + 1] as usize] = 5;
+				index += 2;
+			}
+			4 => {
+				let a = if p0 == 0 {
+					memory[memory[index + 1] as usize]
+				} else {
+					memory[index + 1]
+				};
+				println!("{}", a);
+				index += 2;
+			}
+			5 => {
+				let a = if p0 == 0 {
+					memory[memory[index + 1] as usize]
+				} else {
+					memory[index + 1]
+				};
+				let b = if p1 == 0 {
+					memory[memory[index + 2] as usize]
+				} else {
+					memory[index + 2]
+				};
+				if a != 0 {
+					index = b as usize;
+				} else {
+					index += 3;
+				}
+			}
+			6 => {
+				let a = if p0 == 0 {
+					memory[memory[index + 1] as usize]
+				} else {
+					memory[index + 1]
+				};
+				let b = if p1 == 0 {
+					memory[memory[index + 2] as usize]
+				} else {
+					memory[index + 2]
+				};
+				if a == 0 {
+					index = b as usize;
+				} else {
+					index += 3;
+				}
+			}
+			7 => {
+				let a = if p0 == 0 {
+					memory[memory[index + 1] as usize]
+				} else {
+					memory[index + 1]
+				};
+				let b = if p1 == 0 {
+					memory[memory[index + 2] as usize]
+				} else {
+					memory[index + 2]
+				};
+				if p2 != 0 {
+					panic!("output is value");
+				}
+				memory[memory[index + 3] as usize] = (a < b) as i32;
+				index += 4;
+			}
+			8 => {
+				let a = if p0 == 0 {
+					memory[memory[index + 1] as usize]
+				} else {
+					memory[index + 1]
+				};
+				let b = if p1 == 0 {
+					memory[memory[index + 2] as usize]
+				} else {
+					memory[index + 2]
+				};
+				if p2 != 0 {
+					panic!("output is value");
+				}
+				memory[memory[index + 3] as usize] = (a == b) as i32;
 				index += 4;
 			}
 			99 => break,
@@ -37,7 +144,6 @@ pub fn int_code(memory: &mut [i32]) -> usize {
 		}
 		inst_count += 1;
 	}
-	pv!(memory);
 	inst_count
 }
 

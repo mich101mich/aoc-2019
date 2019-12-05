@@ -16,133 +16,91 @@ macro_rules! pv {
 pub fn int_code(memory: &mut [i32]) -> usize {
 	let mut index = 0;
 	let mut inst_count = 0;
+
+	let inputs = [5];
+	let mut ii = 0;
+	let mut input = || {
+		ii += 1;
+		inputs[ii - 1]
+	};
+
+	let param_map = [
+		(99, &[][..]),
+		(1, &[1, 1, 0][..]),
+		(2, &[1, 1, 0]),
+		(3, &[0]),
+		(4, &[1]),
+		(5, &[1, 1]),
+		(6, &[1, 1]),
+		(7, &[1, 1, 0]),
+		(8, &[1, 1, 0]),
+	]
+	.iter()
+	.cloned()
+	.collect::<HashMap<i32, &'static [usize]>>();
+
 	loop {
-		let op = memory[index];
-		let p0 = (op / 100) % 10;
-		let p1 = (op / 1000) % 10;
-		let p2 = (op / 10000) % 10;
-		let op = op % 100;
+		let mut inst = memory[index];
+		let op = inst % 100;
+		inst /= 100;
+		let param_vars = param_map[&op];
+		let p = param_vars
+			.iter()
+			.enumerate()
+			.map(|(i, io)| {
+				let mode = inst % 10;
+				inst /= 10;
+				if *io == 0 {
+					if mode != 0 {
+						panic!("Output in immediate mode")
+					} else {
+						memory[index + 1 + i]
+					}
+				} else if mode == 0 {
+					memory[memory[index + 1 + i] as usize]
+				} else {
+					memory[index + 1 + i]
+				}
+			})
+			.to_vec();
+
+		inst_count += 1;
+
 		match op {
 			1 => {
-				let a = if p0 == 0 {
-					memory[memory[index + 1] as usize]
-				} else {
-					memory[index + 1]
-				};
-				let b = if p1 == 0 {
-					memory[memory[index + 2] as usize]
-				} else {
-					memory[index + 2]
-				};
-				if p2 == 0 {
-					memory[memory[index + 3] as usize] = a + b;
-				} else {
-					panic!("output is value");
-				};
-				index += 4;
+				memory[p[2] as usize] = p[0] + p[1];
 			}
 			2 => {
-				let a = if p0 == 0 {
-					memory[memory[index + 1] as usize]
-				} else {
-					memory[index + 1]
-				};
-				let b = if p1 == 0 {
-					memory[memory[index + 2] as usize]
-				} else {
-					memory[index + 2]
-				};
-				if p2 != 0 {
-					panic!("output is value");
-				}
-				memory[memory[index + 3] as usize] = a * b;
-				index += 4;
+				memory[p[2] as usize] = p[0] * p[1];
 			}
 			3 => {
-				memory[memory[index + 1] as usize] = 5;
-				index += 2;
+				memory[p[0] as usize] = input();
 			}
 			4 => {
-				let a = if p0 == 0 {
-					memory[memory[index + 1] as usize]
-				} else {
-					memory[index + 1]
-				};
-				println!("{}", a);
-				index += 2;
+				println!("{}", p[0]);
 			}
 			5 => {
-				let a = if p0 == 0 {
-					memory[memory[index + 1] as usize]
-				} else {
-					memory[index + 1]
-				};
-				let b = if p1 == 0 {
-					memory[memory[index + 2] as usize]
-				} else {
-					memory[index + 2]
-				};
-				if a != 0 {
-					index = b as usize;
-				} else {
-					index += 3;
+				if p[0] != 0 {
+					index = p[1] as usize;
+					continue;
 				}
 			}
 			6 => {
-				let a = if p0 == 0 {
-					memory[memory[index + 1] as usize]
-				} else {
-					memory[index + 1]
-				};
-				let b = if p1 == 0 {
-					memory[memory[index + 2] as usize]
-				} else {
-					memory[index + 2]
-				};
-				if a == 0 {
-					index = b as usize;
-				} else {
-					index += 3;
+				if p[0] == 0 {
+					index = p[1] as usize;
+					continue;
 				}
 			}
 			7 => {
-				let a = if p0 == 0 {
-					memory[memory[index + 1] as usize]
-				} else {
-					memory[index + 1]
-				};
-				let b = if p1 == 0 {
-					memory[memory[index + 2] as usize]
-				} else {
-					memory[index + 2]
-				};
-				if p2 != 0 {
-					panic!("output is value");
-				}
-				memory[memory[index + 3] as usize] = (a < b) as i32;
-				index += 4;
+				memory[p[2] as usize] = (p[0] < p[1]) as i32;
 			}
 			8 => {
-				let a = if p0 == 0 {
-					memory[memory[index + 1] as usize]
-				} else {
-					memory[index + 1]
-				};
-				let b = if p1 == 0 {
-					memory[memory[index + 2] as usize]
-				} else {
-					memory[index + 2]
-				};
-				if p2 != 0 {
-					panic!("output is value");
-				}
-				memory[memory[index + 3] as usize] = (a == b) as i32;
-				index += 4;
+				memory[p[2] as usize] = (p[0] == p[1]) as i32;
 			}
 			99 => break,
 			_ => panic!("invalid opcode"),
 		}
-		inst_count += 1;
+		index += p.len() + 1;
 	}
 	inst_count
 }

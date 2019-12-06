@@ -9,5 +9,5 @@ mod days;
 use days::*;
 
 fn main() {
-    day_5::run();
+    day_6::run();
 }

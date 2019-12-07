@@ -32,8 +32,7 @@ fn main() {
     day_$DAY::run();
 }" > src/main.rs
 
-echo "
-pub mod day_$DAY;" >> src/days/mod.rs
+echo "pub mod day_$DAY;" > src/days/mod.rs
 
 touch src/input/$DAY.txt
 

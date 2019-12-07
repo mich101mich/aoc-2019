@@ -13,11 +13,7 @@ macro_rules! pv {
 	};
 }
 
-pub fn int_code(memory: &mut [i32]) -> usize {
-	let mut index = 0;
-	let mut inst_count = 0;
-
-	let inputs = [5];
+pub fn int_code((index, memory): &mut (usize, Vec<i32>), inputs: &[i32]) -> Option<i32> {
 	let mut ii = 0;
 	let mut input = || {
 		ii += 1;
@@ -40,7 +36,7 @@ pub fn int_code(memory: &mut [i32]) -> usize {
 	.collect::<HashMap<i32, &'static [usize]>>();
 
 	loop {
-		let mut inst = memory[index];
+		let mut inst = memory[*index];
 		let op = inst % 100;
 		inst /= 100;
 		let param_vars = param_map[&op];
@@ -54,17 +50,15 @@ pub fn int_code(memory: &mut [i32]) -> usize {
 					if mode != 0 {
 						panic!("Output in immediate mode")
 					} else {
-						memory[index + 1 + i]
+						memory[*index + 1 + i]
 					}
 				} else if mode == 0 {
-					memory[memory[index + 1 + i] as usize]
+					memory[memory[*index + 1 + i] as usize]
 				} else {
-					memory[index + 1 + i]
+					memory[*index + 1 + i]
 				}
 			})
 			.to_vec();
-
-		inst_count += 1;
 
 		match op {
 			1 => {
@@ -77,17 +71,18 @@ pub fn int_code(memory: &mut [i32]) -> usize {
 				memory[p[0] as usize] = input();
 			}
 			4 => {
-				println!("{}", p[0]);
+				*index += p.len() + 1;
+				return Some(p[0]);
 			}
 			5 => {
 				if p[0] != 0 {
-					index = p[1] as usize;
+					*index = p[1] as usize;
 					continue;
 				}
 			}
 			6 => {
 				if p[0] == 0 {
-					index = p[1] as usize;
+					*index = p[1] as usize;
 					continue;
 				}
 			}
@@ -100,9 +95,9 @@ pub fn int_code(memory: &mut [i32]) -> usize {
 			99 => break,
 			_ => panic!("invalid opcode"),
 		}
-		index += p.len() + 1;
+		*index += p.len() + 1;
 	}
-	inst_count
+	None
 }
 
 macro_rules! scanf {

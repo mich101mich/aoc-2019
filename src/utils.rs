@@ -109,6 +109,10 @@ macro_rules! scanf {
     };
 }
 
+pub fn parse(input: &str) -> i32 {
+	i32::from_str(input).unwrap_or_else(|_| panic!("failed to parse >{}<", input))
+}
+
 pub trait IterExt<T> {
 	fn to_vec(self) -> Vec<T>;
 }

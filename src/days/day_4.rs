@@ -7,10 +7,10 @@ pub fn run() {
 	// let input = ;
 	let parsed = input
 		.split('-')
-		.map(|l| i32::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
-		//.map(|l| scanf!(l, "{}", i32))
+		.map(|l| i64::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
+		//.map(|l| scanf!(l, "{}", i64))
 		.to_vec();
-	//.sum::<i32>();
+	//.sum::<i64>();
 	let min = parsed[0];
 	let max = parsed[1];
 
@@ -35,7 +35,7 @@ pub fn run() {
 				m = c;
 			}
 			found = found || current_count == 1;
-			found && adjacent.find(|(a, b)| a > b).is_none()
+			found && !adjacent.any(|(a, b)| a > b)
 		})
 		.count();
 	pv!(count);
@@ -48,10 +48,10 @@ pub fn part_one() {
 	// let input = ;
 	let parsed = input
 		.split('-')
-		.map(|l| i32::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
-		//.map(|l| scanf!(l, "{}", i32))
+		.map(|l| i64::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
+		//.map(|l| scanf!(l, "{}", i64))
 		.to_vec();
-	//.sum::<i32>();
+	//.sum::<i64>();
 	let min = parsed[0];
 	let max = parsed[1];
 
@@ -60,8 +60,8 @@ pub fn part_one() {
 		.map(|n| n.to_string())
 		.filter(|n| {
 			let mut adjacent = n.chars().zip(n.chars().skip(1));
-			adjacent.clone().find(|(a, b)| a == b).is_some()
-				&& adjacent.find(|(a, b)| a > b).is_none()
-		}).count();
+			adjacent.clone().any(|(a, b)| a == b) && !adjacent.any(|(a, b)| a > b)
+		})
+		.count();
 	pv!(count);
 }

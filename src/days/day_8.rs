@@ -9,9 +9,9 @@ pub fn run() {
 	let parsed = input
 		.chars()
 		//.map(|l| parse(l))
-		//.map(|l| scanf!(l, "{}", i32))
+		//.map(|l| scanf!(l, "{}", i64))
 		.to_vec()
-		//.sum::<i32>()
+		//.sum::<i64>()
 		;
 	let w = 25;
 	let h = 6;
@@ -48,13 +48,13 @@ pub fn part_one() {
 	let parsed = input
 		.chars()
 		//.map(|l| parse(l))
-		//.map(|l| scanf!(l, "{}", i32))
+		//.map(|l| scanf!(l, "{}", i64))
 		.to_vec()
-		//.sum::<i32>()
+		//.sum::<i64>()
 		;
 	let w = 25; let h = 6;
 
-	let mut min = 999999999usize;
+	let mut min = 999_999_999usize;
 	let mut min_layer = 0;
 	let mut offset = 0;
 	for layer in 0..parsed.len() / (w * h) {

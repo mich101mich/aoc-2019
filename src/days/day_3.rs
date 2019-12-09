@@ -8,15 +8,15 @@ pub fn run() {
 	let parsed = input
 		.lines()
 		.map(|l| l.split(',')
-		.map(|l| (l.chars().next().unwrap(), i32::from_str(&l[1..]).unwrap_or_else(|_| panic!("failed to parse >{}<", &l[1..]))))
-		//.map(|l| i32::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
-		//.map(|l| scanf!(l, "{}", i32))
+		.map(|l| (l.chars().next().unwrap(), i64::from_str(&l[1..]).unwrap_or_else(|_| panic!("failed to parse >{}<", &l[1..]))))
+		//.map(|l| i64::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
+		//.map(|l| scanf!(l, "{}", i64))
 		.to_vec())
 		.to_vec()
-		//.sum::<i32>()
+		//.sum::<i64>()
 		;
 		let mut positions = HashSet::new();
-	let mut pos = (0i32, 0i32);
+	let mut pos = (0i64, 0i64);
 	let mut distances = HashMap::new();
 	let mut steps = 0;
 	for (d, dist) in parsed[0].iter() {
@@ -112,15 +112,15 @@ pub fn part_one() {
 	let parsed = input
 		.lines()
 		.map(|l| l.split(',')
-		.map(|l| (l.chars().next().unwrap(), i32::from_str(&l[1..]).unwrap_or_else(|_| panic!("failed to parse >{}<", &l[1..]))))
-		//.map(|l| i32::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
-		//.map(|l| scanf!(l, "{}", i32))
+		.map(|l| (l.chars().next().unwrap(), i64::from_str(&l[1..]).unwrap_or_else(|_| panic!("failed to parse >{}<", &l[1..]))))
+		//.map(|l| i64::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
+		//.map(|l| scanf!(l, "{}", i64))
 		.to_vec())
 		.to_vec()
-		//.sum::<i32>()
+		//.sum::<i64>()
 		;
 	let mut positions = HashSet::new();
-	let mut pos = (0i32, 0i32);
+	let mut pos = (0i64, 0i64);
 	for (d, dist) in parsed[0].iter() {
 		match d {
 			'U' => {
@@ -147,7 +147,7 @@ pub fn part_one() {
 					positions.insert(pos);
 				}
 			}
-			_ => panic!("incalid"),
+			_ => panic!("invalid"),
 		}
 	}
 	let mut positions2 = HashSet::new();
@@ -178,7 +178,7 @@ pub fn part_one() {
 					positions2.insert(pos);
 				}
 			}
-			_ => panic!("incalid"),
+			_ => panic!("invalid"),
 		}
 	}
 	let inter = positions

@@ -7,17 +7,16 @@ pub fn run() {
 	let parsed = input
 	.lines()
 	.map(|l| l.split(')').to_vec())
-	//.map(|l| i32::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
-	//.map(|l| scanf!(l, "{}", i32))
+	//.map(|l| i64::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
+	//.map(|l| scanf!(l, "{}", i64))
 		.to_vec()
-		//.sum::<i32>()
+		//.sum::<i64>()
 		;
 
 	let mut parent = HashMap::new();
 	for x in parsed {
 		parent.entry(x[0]).or_insert_with(|| vec![]).push(x[1]);
 	}
-	pv!(parent);
 
 	let path = dijkstra_search(
 		|p| {
@@ -37,7 +36,7 @@ pub fn run() {
 		"YOU",
 		&["SAN"],
 	);
-	pv!(path);
+	pv!(path["SAN"].cost - 2);
 }
 
 #[allow(unused)]
@@ -61,10 +60,10 @@ pub fn part_one() {
 	let parsed = input
 	.lines()
 	.map(|l| l.split(')').to_vec())
-	//.map(|l| i32::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
-	//.map(|l| scanf!(l, "{}", i32))
+	//.map(|l| i64::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
+	//.map(|l| scanf!(l, "{}", i64))
 	.to_vec()
-	//.sum::<i32>()
+	//.sum::<i64>()
 	;
 
 	let mut count = 0;

@@ -6,21 +6,16 @@ pub fn run() {
 	let input = include_str!("../input/2.txt");
 	// let input = "1,9,10,3,2,3,11,0,99,30,40,50";
 
-	let mut parsed = input
-		.lines()
-		.flat_map(|l| l.split(','))
-		.map(|l| i32::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
-		//.map(|l| scanf!(l, "{}-{}", i32, i32))
-		.to_vec();
-	//.sum::<i32>();
+	let mut parsed = input.lines().flat_map(|l| l.split(',')).map(parse).to_vec();
+
 	let mut index = 0;
 
 	for a in 0..parsed.len() {
 		for b in 0..parsed.len() {
 			let mut parsed = parsed.clone();
 			index = 0;
-			parsed[1] = a as i32;
-			parsed[2] = b as i32;
+			parsed[1] = a as i64;
+			parsed[2] = b as i64;
 
 			loop {
 				match parsed[index] {
@@ -57,13 +52,8 @@ pub fn part_one() {
 	let input = include_str!("../input/2.txt");
 	// let input = "1,9,10,3,2,3,11,0,99,30,40,50";
 
-	let mut parsed = input
-		.lines()
-		.flat_map(|l| l.split(','))
-		.map(|l| i32::from_str(l).unwrap_or_else(|_| panic!("failed to parse >{}<", l)))
-		//.map(|l| scanf!(l, "{}-{}", i32, i32))
-		.to_vec();
-	//.sum::<i32>();
+	let mut parsed = input.lines().flat_map(|l| l.split(',')).map(parse).to_vec();
+
 	let mut index = 0;
 
 	parsed[1] = 12;

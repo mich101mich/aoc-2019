@@ -9,13 +9,13 @@ pub fn run() {
 	let parsed = input
 		//.lines()
 		//.map(parse)
-		//.map(|l| scanf!(l, \"{}\", i32))
+		//.map(|l| scanf!(l, \"{}\", i64))
 		//.to_vec()
-		//.sum::<i32>()
+		//.sum::<i64>()
 		;
 	
-	// let mut code = IntProgram::new(input);
-	// pv!(int_code(&mut code, &[], false));
+	// let mut code = IntProgram::new(input, vec![]);
+	// int_code(&mut code, false);
 	
 	//pv!(parsed);
 	

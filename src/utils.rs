@@ -13,18 +13,21 @@ macro_rules! pv {
 	};
 }
 
+#[derive(Debug, Clone)]
 pub struct IntProgram {
 	index: i64,
 	relative_base: i64,
 	mem: Vec<i64>,
+	pub inputs: Vec<i64>,
 }
 
 impl IntProgram {
-	pub fn new(input: &str) -> Self {
+	pub fn new(input: &str, inputs: Vec<i64>) -> Self {
 		IntProgram {
 			index: 0,
 			relative_base: 0,
 			mem: input.split(',').map(parse).collect(),
+			inputs,
 		}
 	}
 	pub fn get(&self, index: i64) -> i64 {
@@ -39,13 +42,7 @@ impl IntProgram {
 	}
 }
 
-pub fn int_code(code: &mut IntProgram, inputs: &[i64], return_on_output: bool) -> Option<i64> {
-	let mut ii = 0;
-	let mut input = || {
-		ii += 1;
-		inputs[ii - 1]
-	};
-
+pub fn int_code(code: &mut IntProgram, return_on_output: bool) -> Option<i64> {
 	let param_map = [
 		(99, &[][..]),
 		(1, &[1, 1, 0][..]),
@@ -100,7 +97,7 @@ pub fn int_code(code: &mut IntProgram, inputs: &[i64], return_on_output: bool) -
 				*code.get_mut(p[2]) = p[0] * p[1];
 			}
 			3 => {
-				*code.get_mut(p[0]) = input();
+				*code.get_mut(p[0]) = code.inputs.remove(0);
 			}
 			4 => {
 				if return_on_output {

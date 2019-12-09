@@ -13,7 +13,33 @@ macro_rules! pv {
 	};
 }
 
-pub fn int_code((index, memory): &mut (usize, Vec<i32>), inputs: &[i32]) -> Option<i32> {
+pub struct IntProgram {
+	index: i64,
+	relative_base: i64,
+	mem: Vec<i64>,
+}
+
+impl IntProgram {
+	pub fn new(input: &str) -> Self {
+		IntProgram {
+			index: 0,
+			relative_base: 0,
+			mem: input.split(',').map(parse).collect(),
+		}
+	}
+	pub fn get(&self, index: i64) -> i64 {
+		self.mem.get(index as usize).copied().unwrap_or(0)
+	}
+	pub fn get_mut(&mut self, index: i64) -> &mut i64 {
+		let index = index as usize;
+		if index >= self.mem.len() {
+			self.mem.resize(index + 1, 0);
+		}
+		&mut self.mem[index]
+	}
+}
+
+pub fn int_code(code: &mut IntProgram, inputs: &[i64], return_on_output: bool) -> Option<i64> {
 	let mut ii = 0;
 	let mut input = || {
 		ii += 1;
@@ -30,13 +56,14 @@ pub fn int_code((index, memory): &mut (usize, Vec<i32>), inputs: &[i32]) -> Opti
 		(6, &[1, 1]),
 		(7, &[1, 1, 0]),
 		(8, &[1, 1, 0]),
+		(9, &[1]),
 	]
 	.iter()
 	.cloned()
-	.collect::<HashMap<i32, &'static [usize]>>();
+	.collect::<HashMap<i64, &'static [usize]>>();
 
 	loop {
-		let mut inst = memory[*index];
+		let mut inst = code.get(code.index);
 		let op = inst % 100;
 		inst /= 100;
 		let param_vars = param_map[&op];
@@ -46,56 +73,68 @@ pub fn int_code((index, memory): &mut (usize, Vec<i32>), inputs: &[i32]) -> Opti
 			.map(|(i, io)| {
 				let mode = inst % 10;
 				inst /= 10;
+				let pos = code.index + 1 + i as i64;
 				if *io == 0 {
-					if mode != 0 {
-						panic!("Output in immediate mode")
-					} else {
-						memory[*index + 1 + i]
+					match mode {
+						0 => code.get(pos),
+						1 => panic!("Output in immediate mode"),
+						2 => code.get(pos) + code.relative_base,
+						m => panic!("Invalid parameter mode {}", m),
 					}
-				} else if mode == 0 {
-					memory[memory[*index + 1 + i] as usize]
 				} else {
-					memory[*index + 1 + i]
+					match mode {
+						0 => code.get(code.get(pos)),
+						1 => code.get(pos),
+						2 => code.get(code.get(pos) + code.relative_base),
+						m => panic!("Invalid parameter mode {}", m),
+					}
 				}
 			})
 			.to_vec();
 
 		match op {
 			1 => {
-				memory[p[2] as usize] = p[0] + p[1];
+				*code.get_mut(p[2]) = p[0] + p[1];
 			}
 			2 => {
-				memory[p[2] as usize] = p[0] * p[1];
+				*code.get_mut(p[2]) = p[0] * p[1];
 			}
 			3 => {
-				memory[p[0] as usize] = input();
+				*code.get_mut(p[0]) = input();
 			}
 			4 => {
-				*index += p.len() + 1;
-				return Some(p[0]);
+				if return_on_output {
+					code.index += p.len() as i64 + 1;
+					return Some(p[0]);
+				} else {
+					println!("{}", p[0]);
+				}
 			}
 			5 => {
 				if p[0] != 0 {
-					*index = p[1] as usize;
+					code.index = p[1];
 					continue;
 				}
 			}
 			6 => {
 				if p[0] == 0 {
-					*index = p[1] as usize;
+					code.index = p[1];
 					continue;
 				}
 			}
 			7 => {
-				memory[p[2] as usize] = (p[0] < p[1]) as i32;
+				code.mem[p[2] as usize] = (p[0] < p[1]) as i64;
 			}
 			8 => {
-				memory[p[2] as usize] = (p[0] == p[1]) as i32;
+				code.mem[p[2] as usize] = (p[0] == p[1]) as i64;
+			}
+			9 => {
+				code.relative_base += p[0];
 			}
 			99 => break,
-			_ => panic!("invalid opcode"),
+			op => panic!("invalid opcode: {}", op),
 		}
-		*index += p.len() + 1;
+		code.index += p.len() as i64 + 1;
 	}
 	None
 }
@@ -109,8 +148,8 @@ macro_rules! scanf {
     };
 }
 
-pub fn parse(input: &str) -> i32 {
-	i32::from_str(input).unwrap_or_else(|_| panic!("failed to parse >{}<", input))
+pub fn parse(input: &str) -> i64 {
+	i64::from_str(input).unwrap_or_else(|_| panic!("failed to parse >{}<", input))
 }
 
 pub trait IterExt<T> {

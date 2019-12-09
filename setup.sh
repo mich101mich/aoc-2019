@@ -7,12 +7,15 @@ pub fn run() {
 	// let input = "";
 	
 	let parsed = input
-		.lines()
-		//.map(|l| i32::from_str(l).unwrap_or_else(|_| panic!(\"failed to parse >{}<\", l)))
+		//.lines()
+		//.map(parse)
 		//.map(|l| scanf!(l, \"{}\", i32))
 		//.to_vec()
 		//.sum::<i32>()
 		;
+	
+	// let mut code = IntProgram::new(input);
+	// pv!(int_code(&mut code, &[], false));
 	
 	//pv!(parsed);
 	

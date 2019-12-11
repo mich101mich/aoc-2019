@@ -40,6 +40,12 @@ impl IntProgram {
 		}
 		&mut self.mem[index]
 	}
+	pub fn input(&mut self) -> i64 {
+		if self.inputs.is_empty() {
+			panic!("Out of Input");
+		}
+		self.inputs.remove(0)
+	}
 }
 
 pub fn int_code(code: &mut IntProgram, return_on_output: bool) -> Option<i64> {
@@ -97,7 +103,7 @@ pub fn int_code(code: &mut IntProgram, return_on_output: bool) -> Option<i64> {
 				*code.get_mut(p[2]) = p[0] * p[1];
 			}
 			3 => {
-				*code.get_mut(p[0]) = code.inputs.remove(0);
+				*code.get_mut(p[0]) = code.input();
 			}
 			4 => {
 				if return_on_output {
@@ -209,6 +215,25 @@ pub enum Dir {
 	Left,
 }
 pub use Dir::*;
+impl Dir {
+	pub fn clockwise(self) -> Dir {
+		((self as usize + 1) % 4).into()
+	}
+	pub fn counter_clockwise(self) -> Dir {
+		((self as usize + 3) % 4).into()
+	}
+}
+impl From<usize> for Dir {
+	fn from(n: usize) -> Dir {
+		match n {
+			0 => Dir::Up,
+			1 => Dir::Right,
+			2 => Dir::Down,
+			3 => Dir::Left,
+			d => panic!("Invalid dir: {}", d),
+		}
+	}
+}
 
 pub type Cost = usize;
 

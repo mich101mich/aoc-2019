@@ -17,7 +17,7 @@ macro_rules! pv {
 pub struct IntProgram {
 	index: i64,
 	relative_base: i64,
-	mem: Vec<i64>,
+	pub mem: Vec<i64>,
 	pub inputs: Vec<i64>,
 }
 

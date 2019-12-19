@@ -126,10 +126,10 @@ pub fn int_code(code: &mut IntProgram, return_on_output: bool) -> Option<i64> {
 				}
 			}
 			7 => {
-				code.mem[p[2] as usize] = (p[0] < p[1]) as i64;
+				*code.get_mut(p[2]) = (p[0] < p[1]) as i64;
 			}
 			8 => {
-				code.mem[p[2] as usize] = (p[0] == p[1]) as i64;
+				*code.get_mut(p[2]) = (p[0] == p[1]) as i64;
 			}
 			9 => {
 				code.relative_base += p[0];

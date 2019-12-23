@@ -18,6 +18,7 @@ pub struct IntProgram {
 	relative_base: i64,
 	pub mem: Vec<i64>,
 	pub inputs: Vec<i64>,
+	default: Option<i64>,
 }
 
 impl IntProgram {
@@ -27,6 +28,16 @@ impl IntProgram {
 			relative_base: 0,
 			mem: input.split(',').map(parse).collect(),
 			inputs,
+			default: None,
+		}
+	}
+	pub fn with_default(input: &str, default: i64) -> Self {
+		IntProgram {
+			index: 0,
+			relative_base: 0,
+			mem: input.split(',').map(parse).collect(),
+			inputs: vec![],
+			default: Some(default),
 		}
 	}
 	pub fn get(&self, index: i64) -> i64 {
@@ -39,106 +50,123 @@ impl IntProgram {
 		}
 		&mut self.mem[index]
 	}
-	pub fn input(&mut self) -> i64 {
-		if self.inputs.is_empty() {
-			panic!("Out of Input");
-		}
-		self.inputs.remove(0)
-	}
+}
+
+pub enum IntResult {
+	Finished,
+	Output(i64),
+	Step,
+	Default,
 }
 
 pub fn int_code(code: &mut IntProgram, return_on_output: bool) -> Option<i64> {
-	let param_map = [
-		(99, &[][..]),
-		(1, &[1, 1, 0][..]),
-		(2, &[1, 1, 0]),
-		(3, &[0]),
-		(4, &[1]),
-		(5, &[1, 1]),
-		(6, &[1, 1]),
-		(7, &[1, 1, 0]),
-		(8, &[1, 1, 0]),
-		(9, &[1]),
-	]
-	.iter()
-	.cloned()
-	.collect::<HashMap<i64, &'static [usize]>>();
-
 	loop {
-		let mut inst = code.get(code.index);
-		let op = inst % 100;
-		inst /= 100;
-		let param_vars = param_map[&op];
-		let p = param_vars
-			.iter()
-			.enumerate()
-			.map(|(i, io)| {
-				let mode = inst % 10;
-				inst /= 10;
-				let pos = code.index + 1 + i as i64;
-				if *io == 0 {
-					match mode {
-						0 => code.get(pos),
-						1 => panic!("Output in immediate mode"),
-						2 => code.get(pos) + code.relative_base,
-						m => panic!("Invalid parameter mode {}", m),
-					}
-				} else {
-					match mode {
-						0 => code.get(code.get(pos)),
-						1 => code.get(pos),
-						2 => code.get(code.get(pos) + code.relative_base),
-						m => panic!("Invalid parameter mode {}", m),
-					}
-				}
-			})
-			.to_vec();
-
-		match op {
-			1 => {
-				*code.get_mut(p[2]) = p[0] + p[1];
-			}
-			2 => {
-				*code.get_mut(p[2]) = p[0] * p[1];
-			}
-			3 => {
-				*code.get_mut(p[0]) = code.input();
-			}
-			4 => {
-				if return_on_output {
-					code.index += p.len() as i64 + 1;
-					return Some(p[0]);
-				} else {
-					println!("{}", p[0]);
-				}
-			}
-			5 => {
-				if p[0] != 0 {
-					code.index = p[1];
-					continue;
-				}
-			}
-			6 => {
-				if p[0] == 0 {
-					code.index = p[1];
-					continue;
-				}
-			}
-			7 => {
-				*code.get_mut(p[2]) = (p[0] < p[1]) as i64;
-			}
-			8 => {
-				*code.get_mut(p[2]) = (p[0] == p[1]) as i64;
-			}
-			9 => {
-				code.relative_base += p[0];
-			}
-			99 => break,
-			op => panic!("invalid opcode: {}", op),
+		match step_int_code(code, return_on_output) {
+			IntResult::Finished => return None,
+			IntResult::Output(o) => return Some(o),
+			_ => {}
 		}
-		code.index += p.len() as i64 + 1;
 	}
-	None
+}
+
+pub fn step_int_code(code: &mut IntProgram, return_on_output: bool) -> IntResult {
+	let param_map = |op| match op {
+		99 => &[][..],
+		1 => &[1, 1, 0],
+		2 => &[1, 1, 0],
+		3 => &[0],
+		4 => &[1],
+		5 => &[1, 1],
+		6 => &[1, 1],
+		7 => &[1, 1, 0],
+		8 => &[1, 1, 0],
+		9 => &[1],
+		op => panic!("Unknown op: {}", op),
+	};
+
+	let mut inst = code.get(code.index);
+	let op = inst % 100;
+	inst /= 100;
+	let param_vars = param_map(op);
+	let p = param_vars
+		.iter()
+		.enumerate()
+		.map(|(i, io)| {
+			let mode = inst % 10;
+			inst /= 10;
+			let pos = code.index + 1 + i as i64;
+			if *io == 0 {
+				match mode {
+					0 => code.get(pos),
+					1 => panic!("Output in immediate mode"),
+					2 => code.get(pos) + code.relative_base,
+					m => panic!("Invalid parameter mode {}", m),
+				}
+			} else {
+				match mode {
+					0 => code.get(code.get(pos)),
+					1 => code.get(pos),
+					2 => code.get(code.get(pos) + code.relative_base),
+					m => panic!("Invalid parameter mode {}", m),
+				}
+			}
+		})
+		.to_vec();
+
+	match op {
+		1 => {
+			*code.get_mut(p[2]) = p[0] + p[1];
+		}
+		2 => {
+			*code.get_mut(p[2]) = p[0] * p[1];
+		}
+		3 => {
+			if code.inputs.is_empty() {
+				if let Some(input) = code.default {
+					*code.get_mut(p[0]) = input;
+					code.index += p.len() as i64 + 1;
+					return IntResult::Default;
+				} else {
+					panic!("Out of Input");
+				}
+			} else {
+				*code.get_mut(p[0]) = code.inputs.remove(0);
+			}
+		}
+		4 => {
+			if return_on_output {
+				code.index += p.len() as i64 + 1;
+				return IntResult::Output(p[0]);
+			} else {
+				println!("{}", p[0]);
+			}
+		}
+		5 => {
+			if p[0] != 0 {
+				code.index = p[1];
+				return IntResult::Step;
+			}
+		}
+		6 => {
+			if p[0] == 0 {
+				code.index = p[1];
+				return IntResult::Step;
+			}
+		}
+		7 => {
+			*code.get_mut(p[2]) = (p[0] < p[1]) as i64;
+		}
+		8 => {
+			*code.get_mut(p[2]) = (p[0] == p[1]) as i64;
+		}
+		9 => {
+			code.relative_base += p[0];
+		}
+		99 => return IntResult::Finished,
+		op => panic!("invalid opcode: {}", op),
+	}
+	code.index += p.len() as i64 + 1;
+	IntResult::Step
 }
 
 macro_rules! scanf {

@@ -1,1 +1,1 @@
-pub mod day_24;
+pub mod day_25;

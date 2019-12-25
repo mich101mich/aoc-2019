@@ -2,7 +2,7 @@
 
 pub use rand::prelude::*;
 pub use rayon::prelude::*;
-pub use std::collections::*;
+pub use std::collections::{HashMap, HashSet, VecDeque};
 pub use std::io::Write;
 pub use std::str::FromStr;
 

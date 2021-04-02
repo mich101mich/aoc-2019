@@ -11,7 +11,7 @@ pub fn run() {
 	let mut y = area.len() / 2;
 
 	for _ in 0..1_000_000 {
-		let dir: i64 = rand::thread_rng().gen_range(1, 5);
+		let dir: isize = rand::thread_rng().gen_range(1, 5);
 		code.inputs.push(dir);
 		let res = int_code(&mut code, true).unwrap();
 		match res {
@@ -59,7 +59,7 @@ pub fn run() {
 			row.iter()
 				.enumerate()
 				.find(|(_, v)| **v == 2)
-				.map(|(x, _)| (x as i64, y as i64))
+				.map(|(x, _)| (x as isize, y as isize))
 		})
 		.next()
 		.unwrap();
@@ -71,7 +71,7 @@ pub fn run() {
 			row.iter()
 				.enumerate()
 				.filter(|(_, v)| **v == 0)
-				.map(move |(x, _)| (x as i64, y as i64))
+				.map(move |(x, _)| (x as isize, y as isize))
 		})
 		.to_vec();
 
@@ -91,12 +91,12 @@ pub fn run() {
 	pv!(paths.values().max_by_key(|p| p.cost));
 }
 
-fn get_all_neighbors(point: (i64, i64)) -> Box<dyn Iterator<Item = (i64, i64)>> {
+fn get_all_neighbors(point: (isize, isize)) -> Box<dyn Iterator<Item = (isize, isize)>> {
 	let (width, height) = (50, 50);
 
-	let iter = [(0i64, -1i64), (1, 0), (0, 1), (-1, 0)]
+	let iter = [(0isize, -1isize), (1, 0), (0, 1), (-1, 0)]
 		.iter()
-		.map(move |(dx, dy)| (point.0 as i64 + dx, point.1 as i64 + dy))
+		.map(move |(dx, dy)| (point.0 as isize + dx, point.1 as isize + dy))
 		.filter(move |(x, y)| *x >= 0 && *y >= 0 && *x < width && *y < height);
 
 	Box::new(iter)
@@ -114,7 +114,7 @@ pub fn part_one() {
 	let mut y = area.len() / 2;
 
 	for _ in 0..100_000 {
-		let dir: i64 = rand::thread_rng().gen_range(1, 5);
+		let dir: isize = rand::thread_rng().gen_range(1, 5);
 		code.inputs.push(dir);
 		let res = int_code(&mut code, true).unwrap();
 		match res {
@@ -155,7 +155,7 @@ pub fn part_one() {
 		println!();
 	}
 
-	let start = (area[0].len() as i64 / 2, area.len() as i64 / 2);
+	let start = (area[0].len() as isize / 2, area.len() as isize / 2);
 
 	let goal = area
 		.iter()
@@ -164,7 +164,7 @@ pub fn part_one() {
 			row.iter()
 				.enumerate()
 				.find(|(_, v)| **v == 2)
-				.map(|(x, _)| (x as i64, y as i64))
+				.map(|(x, _)| (x as isize, y as isize))
 		})
 		.next()
 		.unwrap();

@@ -6,7 +6,7 @@ pub fn run() {
 	// let input = ;
 	let mut pos = input
 		.lines()
-		.map(|l| scanf!(l, "<x={}, y={}, z={}>", i64, i64, i64))
+		.map(|l| scanf!(l, "<x={}, y={}, z={}>", isize, isize, isize))
 		.to_vec();
 
 	let mut vel = vec![(0, 0, 0); pos.len()];
@@ -45,7 +45,7 @@ pub fn part_one() {
 	// let input = ;
 	let mut pos = input
 		.lines()
-		.map(|l| scanf!(l, "<x={}, y={}, z={}>", i64, i64, i64))
+		.map(|l| scanf!(l, "<x={}, y={}, z={}>", isize, isize, isize))
 		.to_vec();
 
 	let mut vel = vec![(0, 0, 0); pos.len()];
@@ -85,7 +85,7 @@ pub fn part_one() {
 		}
 	}
 
-	let energy: i64 = pos
+	let energy: isize = pos
 		.iter()
 		.zip(vel.iter())
 		.map(|(m, v)| {

@@ -73,9 +73,9 @@ pub fn run() {
 			let action = actions.remove(0);
 			println!("{}", action);
 			for c in action.chars() {
-				code.inputs.push(c as u8 as i64);
+				code.inputs.push(c as u8 as isize);
 			}
-			code.inputs.push(b'\n' as i64);
+			code.inputs.push(b'\n' as isize);
 			continue;
 		}
 
@@ -86,29 +86,29 @@ pub fn run() {
 
 		if !inv.is_empty() && (ground.is_empty() || rng.gen()) {
 			for c in "drop ".chars() {
-				code.inputs.push(c as u8 as i64);
+				code.inputs.push(c as u8 as isize);
 			}
 			let item = *inv.choose(&mut rng).expect("inv");
 			inv.retain(|i| *i != item);
 			ground.push(item);
 			for c in item.chars() {
-				code.inputs.push(c as u8 as i64);
+				code.inputs.push(c as u8 as isize);
 			}
-			code.inputs.push(b'\n' as i64);
+			code.inputs.push(b'\n' as isize);
 		} else {
 			for c in "take ".chars() {
-				code.inputs.push(c as u8 as i64);
+				code.inputs.push(c as u8 as isize);
 			}
 			let item = *ground.choose(&mut rng).expect("ground");
 			ground.retain(|i| *i != item);
 			inv.push(item);
 			for c in item.chars() {
-				code.inputs.push(c as u8 as i64);
+				code.inputs.push(c as u8 as isize);
 			}
-			code.inputs.push(b'\n' as i64);
+			code.inputs.push(b'\n' as isize);
 		}
 		for c in "south\n".chars() {
-			code.inputs.push(c as u8 as i64);
+			code.inputs.push(c as u8 as isize);
 		}
 		text.clear();
 		while let Some(c) = int_code(&mut code, true) {
@@ -131,7 +131,7 @@ pub fn run() {
 		// }
 
 		// for c in action.chars() {
-		// 	code.inputs.push(c as u8 as i64);
+		// 	code.inputs.push(c as u8 as isize);
 		// }
 	}
 

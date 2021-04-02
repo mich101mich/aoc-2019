@@ -3,10 +3,10 @@ use crate::utils::*;
 #[allow(unused)]
 pub fn run() {
 	#[allow(unused_variables)]
-	let input = include_str!("../input/2.txt");
+	let input = include_str!("../input/02.txt");
 	// let input = "1,9,10,3,2,3,11,0,99,30,40,50";
 
-	let mut parsed = input.lines().flat_map(|l| l.split(',')).map(parse).to_vec();
+	let mut parsed = input.split(',').map(parse).to_vec();
 
 	let mut index = 0;
 
@@ -14,8 +14,8 @@ pub fn run() {
 		for b in 0..parsed.len() {
 			let mut parsed = parsed.clone();
 			index = 0;
-			parsed[1] = a as i64;
-			parsed[2] = b as i64;
+			parsed[1] = a as isize;
+			parsed[2] = b as isize;
 
 			loop {
 				match parsed[index] {
@@ -49,10 +49,10 @@ pub fn run() {
 #[allow(unused)]
 pub fn part_one() {
 	#[allow(unused_variables)]
-	let input = include_str!("../input/2.txt");
+	let input = include_str!("../input/02.txt");
 	// let input = "1,9,10,3,2,3,11,0,99,30,40,50";
 
-	let mut parsed = input.lines().flat_map(|l| l.split(',')).map(parse).to_vec();
+	let mut parsed = input.split(',').map(parse).to_vec();
 
 	let mut index = 0;
 
@@ -78,5 +78,5 @@ pub fn part_one() {
 		}
 		index += 4;
 	}
-	pv!(parsed);
+	pv!(parsed[0]);
 }

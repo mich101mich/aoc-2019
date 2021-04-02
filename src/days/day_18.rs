@@ -1,312 +1,186 @@
-use crate::utils::*;
+mod utils;
 use std::collections::VecDeque;
+use utils::*;
 
 fn find_in_maze(maze: &[Vec<char>], c: char) -> Vec<(usize, usize)> {
-	maze.iter()
-		.enumerate()
-		.flat_map(|(y, row)| row.iter().enumerate().map(move |(x, v)| (x, y, v)))
-		.filter(|(_, _, v)| **v == c)
-		.map(|(x, y, _)| (x, y))
-		.collect()
+    maze.iter()
+        .enumerate()
+        .flat_map(|(y, row)| row.iter().enumerate().map(move |(x, v)| (x, y, v)))
+        .filter(|(_, _, v)| **v == c)
+        .map(|(x, y, _)| (x, y))
+        .collect()
 }
 
-pub fn run() {
-	#[allow(unused_variables)]
-	let input = include_str!("../input/18.txt");
-	// 	let input = "#############
-	// #g#f.D#..h#l#
-	// #F###e#E###.#
-	// #dCba.#.BcIJ#
-	// ######@######
-	// #nK.L.#.G...#
-	// #M###N#H###.#
-	// #o#m..#i#jk.#
-	// #############";
-	// 	let input = "#############
-	// #DcBa.#.GhKl#
-	// #.###.#.#I###
-	// #e#d##@##j#k#
-	// ###C#.#.###J#
-	// #fEbA.#.FgHi#
-	// #############";
+pub fn main() {
+    #[allow(unused_variables)]
+    let input = include_str!("18.txt");
 
-	// 2334
+    // 4954
 
-	let mut maze = input.lines().map(|l| l.chars().to_vec()).to_vec();
+    let mut maze = input.lines().map(|l| l.chars().to_vec()).to_vec();
 
-	let start = find_in_maze(&maze, '@')[0];
-	maze[start.1][start.0] = '.';
-	maze[start.1 - 1][start.0] = '#';
-	maze[start.1][start.0 - 1] = '#';
-	maze[start.1][start.0 + 1] = '#';
-	maze[start.1 + 1][start.0] = '#';
+    let start = find_in_maze(&maze, '@')[0];
+    maze[start.1][start.0] = '.';
 
-	maze[start.1 - 1][start.0 - 1] = '@';
-	maze[start.1 - 1][start.0 + 1] = '@';
-	maze[start.1 + 1][start.0 - 1] = '@';
-	maze[start.1 + 1][start.0 + 1] = '@';
+    let keys_pos: HashMap<(usize, usize), u8> = maze
+        .iter()
+        .enumerate()
+        .flat_map(|(y, row)| row.iter().enumerate().map(move |(x, v)| (x, y, *v)))
+        .filter(|(_, _, v)| v.is_alphabetic() && v.is_lowercase())
+        .map(|(x, y, v)| ((x, y), v as u8 - b'a'))
+        .collect();
 
-	let keys_pos: HashMap<(usize, usize), char> = maze
-		.iter()
-		.enumerate()
-		.flat_map(|(y, row)| row.iter().enumerate().map(move |(x, v)| (x, y, *v)))
-		.filter(|(_, _, v)| v.is_alphabetic() && v.is_lowercase())
-		.map(|(x, y, v)| ((x, y), v))
-		.collect();
+    let door_pos: HashMap<(usize, usize), u8> = maze
+        .iter()
+        .enumerate()
+        .flat_map(|(y, row)| row.iter().enumerate().map(move |(x, v)| (x, y, *v)))
+        .filter(|(_, _, v)| v.is_alphabetic() && v.is_uppercase())
+        .map(|(x, y, v)| ((x, y), v as u8 - b'A'))
+        .collect();
 
-	let door_pos: HashMap<(usize, usize), char> = maze
-		.iter()
-		.enumerate()
-		.flat_map(|(y, row)| row.iter().enumerate().map(move |(x, v)| (x, y, *v)))
-		.filter(|(_, _, v)| v.is_alphabetic() && v.is_uppercase())
-		.map(|(x, y, v)| ((x, y), v))
-		.collect();
+    let neigh = ManhattanNeighborhood::new(maze[0].len(), maze.len());
+    let mut costs: HashMap<u8, HashMap<u8, (u32, usize)>> = HashMap::new();
+    for (&pos, &key) in keys_pos.iter() {
+        let targets = keys_pos.keys().copied().filter(|p| *p != pos).to_vec();
+        let found = dijkstra_search(
+            |p| neigh.get_all_neighbors(p),
+            |_, _| 1,
+            |(x, y)| maze[y][x] != '#',
+            pos,
+            &targets,
+        );
+        let mut map = HashMap::new();
 
-	let neigh = ManhattanNeighborhood::new(maze[0].len(), maze.len());
-	let mut costs: HashMap<char, HashMap<char, (HashSet<char>, usize)>> = HashMap::new();
-	let starts = [
-		((start.0 - 1, start.1 - 1), '1'),
-		((start.0 + 1, start.1 - 1), '2'),
-		((start.0 - 1, start.1 + 1), '3'),
-		((start.0 + 1, start.1 + 1), '4'),
-	];
-	for (&pos, &key) in keys_pos.iter().chain(starts.iter().map(|v| (&v.0, &v.1))) {
-		let targets = keys_pos.keys().copied().filter(|p| *p != pos).to_vec();
-		let found = dijkstra_search(
-			|p| neigh.get_all_neighbors(p),
-			|_, _| 1,
-			|(x, y)| maze[y][x] != '#',
-			pos,
-			&targets,
-		);
-		let mut map = HashMap::new();
+        for (pos, path) in found {
+            let prec = path
+                .path
+                .iter()
+                .filter_map(|p| door_pos.get(p))
+                .fold(0, |total, v| total | (1 << v));
+            map.insert(keys_pos[&pos], (prec, path.cost));
+        }
 
-		for (pos, path) in found {
-			let key2 = keys_pos[&pos];
-			let cost = path.cost;
-			let prec = path
-				.path
-				.iter()
-				.filter_map(|p| door_pos.get(p))
-				.copied()
-				.map(to_lower)
-				.collect();
-			map.insert(key2, (prec, cost));
-		}
+        costs.insert(key, map);
+    }
+    {
+        let starts = dijkstra_search(
+            |p| neigh.get_all_neighbors(p),
+            |_, _| 1,
+            |(x, y)| maze[y][x] == '.',
+            start,
+            &keys_pos.keys().copied().to_vec()[..],
+        );
+        let mut map = HashMap::new();
+        for (pos, path) in starts {
+            map.insert(keys_pos[&pos], (0, path.cost));
+        }
+        costs.insert(50, map);
+    }
 
-		costs.insert(key, map);
-	}
+    #[derive(Debug, PartialEq, Eq)]
+    struct State {
+        pos: u8,
+        keys: u32,
+        steps: usize,
+    }
+    impl std::cmp::Ord for State {
+        fn cmp(&self, rhs: &State) -> std::cmp::Ordering {
+            rhs.steps.cmp(&self.steps)
+        }
+    }
+    impl std::cmp::PartialOrd for State {
+        fn partial_cmp(&self, rhs: &State) -> Option<std::cmp::Ordering> {
+            Some(self.cmp(rhs))
+        }
+    }
 
-	pub fn dedup_insert(
-		vector: &mut VecDeque<([char; 4], HashSet<char>, usize)>,
-		element: ([char; 4], HashSet<char>, usize),
-	) {
-		for i in 0..vector.len() {
-			if vector[i].0 == element.0 && vector[i].1 == element.1 {
-				vector[i].2 = vector[i].2.min(element.2);
-				return;
-			}
-			if vector[i].2 > element.2 {
-				let mut j = i;
-				while j < vector.len() {
-					if vector[j].0 == element.0 && vector[j].1 == element.1 {
-						vector.remove(j);
-						break;
-					}
-					j += 1;
-				}
-				vector.insert(i, element);
-				return;
-			}
-		}
-		vector.push_back(element);
-	}
-	let mut next = VecDeque::with_capacity(100_000);
+    let mut seen = HashMap::<(u8, u32), usize>::with_capacity(50_000);
 
-	let mut cache = HashSet::new();
+    fn dedup_insert(vector: &mut VecDeque<State>, element: State) {
+        let mut index = None;
+        for (i, other) in vector.iter_mut().enumerate() {
+            if other.pos == element.pos && other.keys == element.keys {
+                other.steps = other.steps.min(element.steps);
+                return;
+            }
+            if other.steps >= element.steps {
+                index = Some(i);
+                break;
+            }
+        }
+        if let Some(i) = index {
+            let mut j = i;
+            while j < vector.len() {
+                if vector[j].pos == element.pos && vector[j].keys == element.keys {
+                    vector.remove(j);
+                    break;
+                }
+                j += 1;
+            }
+            vector.insert(i, element);
+        } else {
+            vector.push_back(element);
+        }
+    }
 
-	dedup_insert(&mut next, (['1', '2', '3', '4'], HashSet::new(), 0));
+    let mut next = VecDeque::with_capacity(50_000);
+    next.push_back(State {
+        pos: 50,
+        keys: 0,
+        steps: 0,
+    });
 
-	let mut cnt = 0;
-	while let Some((pos, keys, steps)) = next.pop_front() {
-		cnt += 1;
-		if cnt > 100 {
-			println!("{} {}   {}", steps, keys.len(), next.len());
-			cnt = 0;
-		}
+    let mut cnt = 0;
+    while let Some(State { pos, keys, steps }) = next.pop_front() {
+        if let Some(shortest_steps) = seen.get(&(pos, keys)) {
+            if *shortest_steps < steps {
+                continue;
+            }
+        }
 
-		if keys.len() == keys_pos.len() {
-			pv!(steps);
-			return;
-		}
-		let state = {
-			let mut keys = keys.iter().copied().to_vec();
-			keys.sort();
-			(pos, keys)
-		};
-		if !cache.insert(state) {
-			continue;
-		}
+        cnt += 1;
+        if cnt > 1_000 {
+            println!("{} {} {}", steps, next.len(), seen.len());
+            cnt = 0;
+        }
+        let candidates = costs[&pos]
+            .iter()
+            .filter(|(k, _)| keys & (1 << **k) == 0)
+            .filter(|(_, (prec, _))| prec & !keys == 0);
 
-		let mut found = false;
-		for r in 0..4 {
+        let mut found = false;
+        for (k, (_, cost)) in candidates {
+            found = true;
+            let state = State {
+                pos: *k,
+                keys: keys | (1 << *k),
+                steps: steps + cost,
+            };
+            if let Some(steps) = seen.get_mut(&(state.pos, state.keys)) {
+                if *steps < state.steps {
+                    continue;
+                }
+                *steps = state.steps;
+                dedup_insert(&mut next, state)
+            } else {
+                seen.insert((state.pos, state.keys), state.steps);
+                let mut a = 0;
+                let mut b = next.len();
+                while b - a > 1 {
+                    let mid = (a + b) / 2;
+                    if next[mid].steps > state.steps {
+                        b = mid;
+                    } else {
+                        a = mid;
+                    }
+                }
+                next.insert(a, state);
+            }
+        }
 
-			let candidates = costs[&pos[r]]
-				.iter()
-				.filter(|(k, _)| !keys.contains(k))
-				.filter(|(_, (prec, _))| prec.is_subset(&keys));
-	
-			for (k, (_, cost)) in candidates {
-				found = true;
-				let steps = steps + cost;
-				let mut keys = keys.clone();
-				keys.insert(*k);
-				let mut pos = pos;
-				pos[r] = *k;
-				dedup_insert(&mut next, (pos, keys, steps));
-			}
-		}
-		if !found {
-			pv!(found);
-			pv!(steps);
-			return;
-		}
-	}
-}
-
-#[allow(unused)]
-pub fn part_one() {
-	#[allow(unused_variables)]
-	let input = include_str!("../input/18.txt");
-
-	// 4954
-
-	let mut maze = input.lines().map(|l| l.chars().to_vec()).to_vec();
-
-	let start = find_in_maze(&maze, '@')[0];
-	maze[start.1][start.0] = '.';
-
-	let keys_pos: HashMap<(usize, usize), char> = maze
-		.iter()
-		.enumerate()
-		.flat_map(|(y, row)| row.iter().enumerate().map(move |(x, v)| (x, y, *v)))
-		.filter(|(_, _, v)| v.is_alphabetic() && v.is_lowercase())
-		.map(|(x, y, v)| ((x, y), v))
-		.collect();
-
-	let door_pos: HashMap<(usize, usize), char> = maze
-		.iter()
-		.enumerate()
-		.flat_map(|(y, row)| row.iter().enumerate().map(move |(x, v)| (x, y, *v)))
-		.filter(|(_, _, v)| v.is_alphabetic() && v.is_uppercase())
-		.map(|(x, y, v)| ((x, y), v))
-		.collect();
-
-	let neigh = ManhattanNeighborhood::new(maze[0].len(), maze.len());
-	let mut costs: HashMap<char, HashMap<char, (HashSet<char>, usize)>> = HashMap::new();
-	for (&pos, &key) in keys_pos.iter() {
-		let targets = keys_pos.keys().copied().filter(|p| *p != pos).to_vec();
-		let found = dijkstra_search(
-			|p| neigh.get_all_neighbors(p),
-			|_, _| 1,
-			|(x, y)| maze[y][x] != '#',
-			pos,
-			&targets,
-		);
-		let mut map = HashMap::new();
-
-		for (pos, path) in found {
-			let key2 = keys_pos[&pos];
-			let cost = path.cost;
-			let prec = path
-				.path
-				.iter()
-				.filter_map(|p| door_pos.get(p))
-				.copied()
-				.map(to_lower)
-				.collect();
-			map.insert(key2, (prec, cost));
-		}
-
-		costs.insert(key, map);
-	}
-
-	let starts = dijkstra_search(
-		|p| neigh.get_all_neighbors(p),
-		|_, _| 1,
-		|(x, y)| maze[y][x] == '.',
-		start,
-		&keys_pos.keys().copied().to_vec()[..],
-	);
-
-	pub fn dedup_insert(
-		vector: &mut VecDeque<(char, HashSet<char>, usize)>,
-		element: (char, HashSet<char>, usize),
-	) {
-		for i in 0..vector.len() {
-			if vector[i].0 == element.0 && vector[i].1 == element.1 {
-				vector[i].2 = vector[i].2.min(element.2);
-				return;
-			}
-			if vector[i].2 > element.2 {
-				let mut j = i;
-				while j < vector.len() {
-					if vector[j].0 == element.0 && vector[j].1 == element.1 {
-						vector.remove(j);
-						break;
-					}
-					j += 1;
-				}
-				vector.insert(i, element);
-				return;
-			}
-		}
-		vector.push_back(element);
-	}
-	let mut next = VecDeque::with_capacity(50_000);
-
-	for (k, path) in starts.iter() {
-		let v = (
-			keys_pos[k],
-			std::iter::once(keys_pos[k]).collect::<HashSet<char>>(),
-			path.cost,
-		);
-		dedup_insert(&mut next, v);
-	}
-
-	let mut cnt = 0;
-	while let Some((pos, keys, steps)) = next.pop_front() {
-		cnt += 1;
-		if cnt > 100 {
-			println!("{} {}", steps, next.len());
-			cnt = 0;
-		}
-		let candidates = costs[&pos]
-			.iter()
-			.filter(|(k, _)| !keys.contains(k))
-			.filter(|(_, (prec, _))| prec.is_subset(&keys));
-
-		let mut found = false;
-		for (k, (_, cost)) in candidates {
-			found = true;
-			let steps = steps + cost;
-			let mut keys = keys.clone();
-			keys.insert(*k);
-			dedup_insert(&mut next, (*k, keys, steps));
-		}
-
-		// next.truncate(30_000);
-
-		if !found {
-			pv!(steps);
-			return;
-		}
-	}
-}
-
-fn to_upper(c: char) -> char {
-	c.to_uppercase().next().expect("to_upper")
-}
-fn to_lower(c: char) -> char {
-	c.to_lowercase().next().expect("to_lower")
+        if !found {
+            pv!(steps);
+            return;
+        }
+    }
 }

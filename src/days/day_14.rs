@@ -18,9 +18,9 @@ pub fn run() {
 			(parse_chem(output), input.split(", ").map(parse_chem).to_vec())
 		})
 		//.map(parse)
-		//.map(|l| scanf!(l, "{}", i64))
+		//.map(|l| scanf!(l, "{}", isize))
 		.to_vec()
-		//.sum::<i64>()
+		//.sum::<isize>()
 		;
 	let mut map = HashMap::new();
 	for (output, input) in parsed.iter() {
@@ -95,9 +95,9 @@ pub fn part_one() {
 			(parse_chem(output), input.split(", ").map(parse_chem).to_vec())
 		})
 		//.map(parse)
-		//.map(|l| scanf!(l, "{}", i64))
+		//.map(|l| scanf!(l, "{}", isize))
 		.to_vec()
-		//.sum::<i64>()
+		//.sum::<isize>()
 		;
 	let mut map = HashMap::new();
 	for (output, input) in parsed.iter() {

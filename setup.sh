@@ -7,11 +7,14 @@ pub fn run() {
 	// let input = "";
 	
 	let parsed = input
-		//.lines()
-		//.map(parse)
-		//.map(|l| scanf!(l, \"{}\", i64))
-		//.to_vec()
-		//.sum::<i64>()
+        //.lines()
+        //.chars()
+        //.map(|l| l.chars().to_vec())
+        //.map(parse)
+        //.map(|l| scanf!(l, \"{}\", isize).unwrap())
+        //.to_vec()
+        //.sum::<isize>()
+        //.parse::<isize>()
 		;
 	
 	// let mut code = IntProgram::new(input, vec![]);

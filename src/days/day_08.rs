@@ -3,15 +3,15 @@ use crate::utils::*;
 #[allow(unused)]
 pub fn run() {
 	#[allow(unused_variables)]
-	let input = include_str!("../input/8.txt");
+	let input = include_str!("../input/08.txt");
 	// let input = "";
 
 	let parsed = input
 		.chars()
 		//.map(|l| parse(l))
-		//.map(|l| scanf!(l, "{}", i64))
+		//.map(|l| scanf!(l, "{}", isize))
 		.to_vec()
-		//.sum::<i64>()
+		//.sum::<isize>()
 		;
 	let w = 25;
 	let h = 6;
@@ -42,15 +42,15 @@ pub fn run() {
 #[allow(unused)]
 pub fn part_one() {
 	#[allow(unused_variables)]
-	let input = include_str!("../input/8.txt");
+	let input = include_str!("../input/08.txt");
 	// let input = "";
 
 	let parsed = input
 		.chars()
 		//.map(|l| parse(l))
-		//.map(|l| scanf!(l, "{}", i64))
+		//.map(|l| scanf!(l, "{}", isize))
 		.to_vec()
-		//.sum::<i64>()
+		//.sum::<isize>()
 		;
 	let w = 25; let h = 6;
 

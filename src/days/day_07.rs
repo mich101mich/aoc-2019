@@ -3,7 +3,7 @@ use crate::utils::*;
 #[allow(unused)]
 pub fn run() {
 	#[allow(unused_variables)]
-	let input = include_str!("../input/7.txt");
+	let input = include_str!("../input/07.txt");
 
 	let code = IntProgram::new(input, vec![]);
 
@@ -42,7 +42,7 @@ pub fn run() {
 #[allow(unused)]
 pub fn part_one() {
 	#[allow(unused_variables)]
-	let input = include_str!("../input/7.txt");
+	let input = include_str!("../input/07.txt");
 
 	let code = IntProgram::new(input, vec![]);
 

@@ -19,25 +19,25 @@ pub fn run() {
 	let c = "L,12,L,10,L,8\n";
 
 	for c in routines.chars() {
-		code.inputs.push(c as u8 as i64);
+		code.inputs.push(c as u8 as isize);
 	}
 	for c in a.chars() {
-		code.inputs.push(c as u8 as i64);
+		code.inputs.push(c as u8 as isize);
 	}
 	for c in b.chars() {
-		code.inputs.push(c as u8 as i64);
+		code.inputs.push(c as u8 as isize);
 	}
 	for c in c.chars() {
-		code.inputs.push(c as u8 as i64);
+		code.inputs.push(c as u8 as isize);
 	}
-	code.inputs.push(b'y' as i64);
-	code.inputs.push(b'\n' as i64);
+	code.inputs.push(b'y' as isize);
+	code.inputs.push(b'\n' as isize);
 
-	let mut last = b'\n' as i64;
+	let mut last = b'\n' as isize;
 	while let Some(c) = int_code(&mut code, true) {
 		if c < 256 {
 			print!("{}", c as u8 as char);
-			if c == b'\n' as i64 && last == c {
+			if c == b'\n' as isize && last == c {
 				// std::thread::sleep(std::time::Duration::from_millis(200));
 			}
 			last = c;

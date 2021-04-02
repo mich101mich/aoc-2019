@@ -25,9 +25,9 @@ pub fn run() {
 			mul *= -1;
 			plus *= -1;
 			plus -= 1;
-		} else if let Ok(n) = scan_fmt!(action, "cut {}", i64) {
+		} else if let Ok(n) = scan_fmt!(action, "cut {}", isize) {
 			plus += n;
-		} else if let Ok(n) = scan_fmt!(action, "deal with increment {}", i64) {
+		} else if let Ok(n) = scan_fmt!(action, "deal with increment {}", isize) {
 			let f = Int::from(n).modpow(&(&cards - 2), &cards);
 			mul *= &f;
 			plus *= f;
@@ -68,7 +68,7 @@ pub fn part_one() {
 	for action in parsed {
 		if action == "deal into new stack" {
 			cards = cards.into_iter().rev().collect();
-		} else if let Ok(n) = scan_fmt!(action, "cut {}", i64) {
+		} else if let Ok(n) = scan_fmt!(action, "cut {}", isize) {
 			if n >= 0 {
 				for _ in 0..n {
 					let e = cards.pop_front().unwrap();

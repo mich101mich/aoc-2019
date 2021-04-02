@@ -5,7 +5,7 @@ pub fn run() {
 	let input = include_str!("../input/16.txt");
 	// let input = ;
 
-	let list = input.chars().map(|c| c as i64 - '0' as i64).to_vec();
+	let list = input.chars().map(|c| c as isize - '0' as isize).to_vec();
 
 	let offset = parse(&input[0..7]);
 
@@ -45,7 +45,7 @@ pub fn part_one() {
 	let input = include_str!("../input/16.txt");
 	// let input = ;
 
-	let mut list = input.chars().map(|c| c as i64 - '0' as i64).to_vec();
+	let mut list = input.chars().map(|c| c as isize - '0' as isize).to_vec();
 
 	for _ in 0..100 {
 		let mut new_list = list.clone();

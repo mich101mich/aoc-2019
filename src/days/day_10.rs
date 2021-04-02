@@ -8,13 +8,13 @@ pub fn run() {
 		.lines()
 		.map(|l| l.chars().to_vec())
 		//.map(parse)
-		//.map(|l| scanf!(l, "{}", i64))
+		//.map(|l| scanf!(l, "{}", isize))
 		.to_vec()
-		//.sum::<i64>()
+		//.sum::<isize>()
 		;
 
-	let h = parsed.len() as i64;
-	let w = parsed[0].len() as i64;
+	let h = parsed.len() as isize;
+	let w = parsed[0].len() as isize;
 	let (x, y) = (27, 19);
 	let mut all = parsed
 		.iter()
@@ -22,10 +22,10 @@ pub fn run() {
 		.flat_map(|(y2, row)| {
 			row.iter()
 				.enumerate()
-				.map(move |(x2, c)| (x2 as i64 - x, y2 as i64 - y, c))
+				.map(move |(x2, c)| (x2 as isize - x, y2 as isize - y, c))
 		})
 		.filter(|(_, _, c)| **c == '#')
-		.map(|(x, y, _)| (x, y, (f32::atan2(x as f32, -y as f32) * 100_000.0) as i64))
+		.map(|(x, y, _)| (x, y, (f32::atan2(x as f32, -y as f32) * 100_000.0) as isize))
 		.map(|(x, y, v)| (x, y, if v < 0 { v + 700_000 } else { v }))
 		.to_vec();
 	all.sort_by_key(|(_, _, v)| *v);
@@ -70,13 +70,13 @@ pub fn part_one() {
 			.lines()
 			.map(|l| l.chars().to_vec())
 			//.map(parse)
-			//.map(|l| scanf!(l, "{}", i64))
+			//.map(|l| scanf!(l, "{}", isize))
 			.to_vec()
-			//.sum::<i64>()
+			//.sum::<isize>()
 			;
 
-	let h = parsed.len() as i64;
-	let w = parsed[0].len() as i64;
+	let h = parsed.len() as isize;
+	let w = parsed[0].len() as isize;
 	let mut max = 0;
 	let mut max_v = (0, 0);
 	for y in 0..h {

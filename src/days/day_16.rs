@@ -3,35 +3,30 @@ use crate::utils::*;
 pub fn run() {
     #[allow(unused_variables)]
     let input = include_str!("../input/16.txt");
-    // let input = ;
 
-    let list = input.chars().map(|c| c as isize - '0' as isize).to_vec();
+    let list = input.chars().map(parse_c).to_vec();
 
-    let offset = parse(&input[0..7]);
+    let offset = parse_u(&input[0..7]);
+
+    assert!(2 * offset >= list.len() * 10_000);
 
     let mut list = list
         .iter()
         .copied()
         .cycle()
         .take(list.len() * 10_000)
-        .skip(offset as usize)
+        .skip(offset)
         .to_vec();
 
-    for step in 0..100 {
-        pv!(step);
-        let mut new_list = list.clone();
-
+    let mut new_list = list.clone();
+    for _ in 0..100 {
         let mut sum = 0;
-        for (i, v) in new_list.iter_mut().enumerate().rev() {
-            sum += list[i];
-            *v = sum % 10;
+        for (new, old) in new_list.iter_mut().zip(list.iter()).rev() {
+            sum += *old;
+            *new = sum % 10;
         }
 
-        list = new_list;
-        for v in list.iter().take(8) {
-            print!("{}", v);
-        }
-        println!();
+        std::mem::swap(&mut list, &mut new_list);
     }
     for v in list.iter().take(8) {
         print!("{}", v);
@@ -43,9 +38,8 @@ pub fn run() {
 pub fn part_one() {
     #[allow(unused_variables)]
     let input = include_str!("../input/16.txt");
-    // let input = ;
 
-    let mut list = input.chars().map(|c| c as isize - '0' as isize).to_vec();
+    let mut list = input.chars().map(parse_c).to_vec();
 
     for _ in 0..100 {
         let mut new_list = list.clone();
@@ -56,19 +50,16 @@ pub fn part_one() {
                 .chain(std::iter::repeat(1).take(i + 1))
                 .chain(std::iter::repeat(0).take(i + 1))
                 .chain(std::iter::repeat(-1).take(i + 1))
-                .to_vec();
+                .cycle()
+                .skip(1);
 
-            *v = list
-                .iter()
-                .zip(pattern.iter().cycle().skip(1))
-                .map(|(v, n)| *v * n)
-                .sum();
-            *v = (*v % 10).abs();
+            let sum: isize = list.iter().zip(pattern).map(|(v, n)| *v as isize * n).sum();
+            *v = (sum % 10).abs() as usize;
         }
 
         list = new_list;
     }
-    for v in list.iter() {
+    for v in list.iter().take(8) {
         print!("{}", v);
     }
     println!();

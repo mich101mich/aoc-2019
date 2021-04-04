@@ -3,78 +3,99 @@ use crate::utils::*;
 pub fn run() {
     #[allow(unused_variables)]
     let input = include_str!("../input/12.txt");
-    // let input = ;
+
     let mut pos = input
         .lines()
-        .map(|l| scanf!(l, "<x={}, y={}, z={}>", isize, isize, isize))
+        .map(|l| scanf!(l, "<x={}, y={}, z={}>", isize, isize, isize).unwrap())
         .to_vec();
 
     let mut vel = vec![(0, 0, 0); pos.len()];
-    let mut states = HashSet::with_capacity(50_000_000);
-
-    // 0: 268296
-    // 1: 22958
-    // 2: 231614
-    // lcm: 356,658,899,375,688
+    let mut cycle = (0, 0, 0);
+    let mut states = (HashSet::new(), HashSet::new(), HashSet::new());
 
     for step in 0.. {
-        if !states.insert((
-            pos[0].2, pos[1].2, pos[2].2, pos[3].2, vel[0].2, vel[1].2, vel[2].2, vel[3].2,
-        )) {
-            pv!(step);
-            break;
+        if cycle.0 == 0
+            && !states
+                .0
+                .insert(pos.iter().chain(vel.iter()).map(|p| p.0).to_vec())
+        {
+            cycle.0 = step;
+            if cycle.0 != 0 && cycle.1 != 0 && cycle.2 != 0 {
+                break;
+            }
+        }
+        if cycle.1 == 0
+            && !states
+                .1
+                .insert(pos.iter().chain(vel.iter()).map(|p| p.1).to_vec())
+        {
+            cycle.1 = step;
+            if cycle.0 != 0 && cycle.1 != 0 && cycle.2 != 0 {
+                break;
+            }
+        }
+        if cycle.2 == 0
+            && !states
+                .2
+                .insert(pos.iter().chain(vel.iter()).map(|p| p.2).to_vec())
+        {
+            cycle.2 = step;
+            if cycle.0 != 0 && cycle.1 != 0 && cycle.2 != 0 {
+                break;
+            }
         }
         for (i, m1) in pos.iter().enumerate() {
-            for (j, m2) in pos[i + 1..].iter().enumerate() {
-                let j = j + i + 1;
-                vel[j].2 += (m1.2 - m2.2).signum();
-                vel[i].2 += (m2.2 - m1.2).signum();
+            for (j, m2) in pos.iter().enumerate().skip(i + 1) {
+                let delta = (m2.0 - m1.0).signum();
+                vel[i].0 += delta;
+                vel[j].0 -= delta;
+                let delta = (m2.1 - m1.1).signum();
+                vel[i].1 += delta;
+                vel[j].1 -= delta;
+                let delta = (m2.2 - m1.2).signum();
+                vel[i].2 += delta;
+                vel[j].2 -= delta;
             }
         }
 
         for (m, v) in pos.iter_mut().zip(vel.iter()) {
+            m.0 += v.0;
+            m.1 += v.1;
             m.2 += v.2;
         }
     }
+    pv!(cycle);
+    let lcm = num::integer::lcm(
+        cycle.0 as u128,
+        num::integer::lcm(cycle.1 as u128, cycle.2 as u128),
+    );
+    pv!(lcm);
 }
 
 #[allow(unused)]
 pub fn part_one() {
     #[allow(unused_variables)]
     let input = include_str!("../input/12.txt");
-    // let input = ;
+
     let mut pos = input
         .lines()
-        .map(|l| scanf!(l, "<x={}, y={}, z={}>", isize, isize, isize))
+        .map(|l| scanf!(l, "<x={}, y={}, z={}>", isize, isize, isize).unwrap())
         .to_vec();
 
     let mut vel = vec![(0, 0, 0); pos.len()];
 
     for _ in 0..1000 {
         for (i, m1) in pos.iter().enumerate() {
-            for (j, m2) in pos[i + 1..].iter().enumerate() {
-                let j = j + i + 1;
-                if m1.0 > m2.0 {
-                    vel[i].0 -= 1;
-                    vel[j].0 += 1;
-                } else if m1.0 < m2.0 {
-                    vel[i].0 += 1;
-                    vel[j].0 -= 1;
-                }
-                if m1.1 > m2.1 {
-                    vel[i].1 -= 1;
-                    vel[j].1 += 1;
-                } else if m1.1 < m2.1 {
-                    vel[i].1 += 1;
-                    vel[j].1 -= 1;
-                }
-                if m1.2 > m2.2 {
-                    vel[i].2 -= 1;
-                    vel[j].2 += 1;
-                } else if m1.2 < m2.2 {
-                    vel[i].2 += 1;
-                    vel[j].2 -= 1;
-                }
+            for (j, m2) in pos.iter().enumerate().skip(i + 1) {
+                let delta = (m2.0 - m1.0).signum();
+                vel[i].0 += delta;
+                vel[j].0 -= delta;
+                let delta = (m2.1 - m1.1).signum();
+                vel[i].1 += delta;
+                vel[j].1 -= delta;
+                let delta = (m2.2 - m1.2).signum();
+                vel[i].2 += delta;
+                vel[j].2 -= delta;
             }
         }
 

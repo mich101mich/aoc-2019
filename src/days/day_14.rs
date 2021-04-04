@@ -1,31 +1,20 @@
 use crate::utils::*;
 
+fn parse_chem(ch: &str) -> (usize, String) {
+    scanf!(ch, "{} {}", usize, String).unwrap()
+}
+
 pub fn run() {
     #[allow(unused_variables)]
     let input = include_str!("../input/14.txt");
-    // let input = ;
 
-    fn parse_chem(ch: &str) -> (u64, String) {
-        scanf!(ch, "{} {}", u64, String)
-    }
-
-    let parsed = input
+    let map = input
         .lines()
         .map(|l| {
-            let mut sp = l.split(" => ");
-            let input = sp.next().unwrap();
-            let output = sp.next().unwrap();
-            (parse_chem(output), input.split(", ").map(parse_chem).to_vec())
+            let (input, n, output) = scanf!(l, "{} => {} {}", String, usize, String).unwrap();
+            (output, (input.split(", ").map(parse_chem).to_vec(), n))
         })
-        //.map(parse)
-        //.map(|l| scanf!(l, "{}", isize))
-        .to_vec()
-        //.sum::<isize>()
-        ;
-    let mut map = HashMap::new();
-    for (output, input) in parsed.iter() {
-        map.insert(output.1.clone(), (input, output.0));
-    }
+        .to_map();
 
     let mut predecessors = HashMap::new();
     for name in map.keys() {
@@ -39,70 +28,40 @@ pub fn run() {
         }
     }
 
-    let mut lower = 1;
-    let mut upper = 100_000_000u64;
+    let mut required = HashMap::new();
+    required.insert("FUEL", 1.0);
 
-    while upper - lower > 1 {
-        let mut predecessors = predecessors.clone();
-
-        let mid = (upper + lower) / 2;
-
-        let mut required = HashMap::new();
-        required.insert("FUEL", mid);
-
-        while let Some((&next, _)) = predecessors.iter().find(|(_, v)| v.is_empty()) {
-            if next == "ORE" {
-                break;
-            }
-            predecessors.remove(next);
-            for other in predecessors.values_mut() {
-                other.retain(|v| *v != next);
-            }
-            let amount = required.remove(next).unwrap();
-            let (inputs, outcome) = &map[next];
-            let factor = (amount as f32 / *outcome as f32).ceil() as u64;
-            for (i_amount, i_name) in inputs.iter() {
-                *required.entry(i_name).or_insert(0) += i_amount * factor;
-            }
+    while let Some((&next, _)) = predecessors.iter().find(|(_, v)| v.is_empty()) {
+        if next == "ORE" {
+            break;
         }
-        let amount = required["ORE"];
-        if amount > 1_000_000_000_000u64 {
-            upper = mid;
-        } else {
-            lower = mid;
+        predecessors.remove(next);
+        for other in predecessors.values_mut() {
+            other.retain(|v| *v != next);
+        }
+        let amount = required.remove(next).unwrap();
+        let (inputs, outcome) = &map[next];
+        let factor = amount / *outcome as f64;
+        for (i_amount, i_name) in inputs.iter() {
+            *required.entry(i_name).or_insert(0.0) += *i_amount as f64 * factor;
         }
     }
-    pv!(lower);
-    pv!(upper);
+    let amount = f64::floor(1_000_000_000_000.0 / required["ORE"]) as usize;
+    pv!(amount);
 }
 
 #[allow(unused)]
 pub fn part_one() {
     #[allow(unused_variables)]
     let input = include_str!("../input/14.txt");
-    // let input = ;
 
-    fn parse_chem(ch: &str) -> (usize, String) {
-        scanf!(ch, "{} {}", usize, String)
-    }
-
-    let parsed = input
+    let map = input
         .lines()
         .map(|l| {
-            let mut sp = l.split(" => ");
-            let input = sp.next().unwrap();
-            let output = sp.next().unwrap();
-            (parse_chem(output), input.split(", ").map(parse_chem).to_vec())
+            let (input, n, output) = scanf!(l, "{} => {} {}", String, usize, String).unwrap();
+            (output, (input.split(", ").map(parse_chem).to_vec(), n))
         })
-        //.map(parse)
-        //.map(|l| scanf!(l, "{}", isize))
-        .to_vec()
-        //.sum::<isize>()
-        ;
-    let mut map = HashMap::new();
-    for (output, input) in parsed.iter() {
-        map.insert(output.1.clone(), (input, output.0));
-    }
+        .to_map();
 
     let mut predecessors = HashMap::new();
     for name in map.keys() {
@@ -134,6 +93,5 @@ pub fn part_one() {
             *required.entry(i_name).or_insert(0) += i_amount * factor;
         }
     }
-    pv!(predecessors);
     pv!(required);
 }

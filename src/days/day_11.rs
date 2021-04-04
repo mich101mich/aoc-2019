@@ -9,13 +9,13 @@ pub fn run() {
 
     let mut hull = vec![vec![0; 100]; 100];
     let mut dir = Dir::Up;
-    let (mut x, mut y) = (50, 50);
+    let mut pos = (50, 50);
 
-    hull[y][x] = 1;
+    hull[pos.1][pos.0] = 1;
     loop {
-        code.inputs.push(hull[y][x]);
+        code.inputs.push(hull[pos.1][pos.0]);
         if let Some(color) = int_code(&mut code, true) {
-            hull[y][x] = color;
+            hull[pos.1][pos.0] = color;
         } else {
             break;
         }
@@ -25,13 +25,11 @@ pub fn run() {
         } else {
             dir = dir.clockwise();
         }
-        match dir {
-            Dir::Up => y -= 1,
-            Dir::Right => x += 1,
-            Dir::Down => y += 1,
-            Dir::Left => x -= 1,
-        }
+        pos += dir;
     }
+
+    trim_grid(&mut hull, |x| *x == 0);
+
     for row in &hull {
         for color in row {
             if *color == 1 {
@@ -53,14 +51,14 @@ pub fn part_one() {
 
     let mut hull = vec![vec![0; 200]; 200];
     let mut dir = Dir::Up;
-    let (mut x, mut y) = (100, 100);
+    let mut pos = (100, 100);
     let mut painted = HashSet::new();
 
     loop {
-        code.inputs.push(hull[y][x]);
+        code.inputs.push(hull[pos.1][pos.0]);
         if let Some(color) = int_code(&mut code, true) {
-            hull[y][x] = color;
-            painted.insert((x, y));
+            hull[pos.1][pos.0] = color;
+            painted.insert(pos);
         } else {
             break;
         }
@@ -70,12 +68,7 @@ pub fn part_one() {
         } else {
             dir = dir.clockwise();
         }
-        match dir {
-            Dir::Up => y -= 1,
-            Dir::Right => x += 1,
-            Dir::Down => y += 1,
-            Dir::Left => x -= 1,
-        }
+        pos += dir;
     }
     pv!(painted.len());
 }

@@ -1,10 +1,11 @@
 use crate::utils::*;
 
+#[allow(unused)]
 pub fn run() {
     #[allow(unused_variables)]
     let input = include_str!("../input/22.txt");
 
-    use num_bigint::BigInt as Int;
+    use num::bigint::BigInt as Int;
 
     // let pos = 2020i128;
     let cards = 119_315_717_514_047i128;
@@ -25,9 +26,9 @@ pub fn run() {
             mul *= -1;
             plus *= -1;
             plus -= 1;
-        } else if let Ok(n) = scan_fmt!(action, "cut {}", isize) {
+        } else if let Some(n) = scanf!(action, "cut {}", isize) {
             plus += n;
-        } else if let Ok(n) = scan_fmt!(action, "deal with increment {}", isize) {
+        } else if let Some(n) = scanf!(action, "deal with increment {}", isize) {
             let f = Int::from(n).modpow(&(&cards - 2), &cards);
             mul *= &f;
             plus *= f;
@@ -68,7 +69,7 @@ pub fn part_one() {
     for action in parsed {
         if action == "deal into new stack" {
             cards = cards.into_iter().rev().collect();
-        } else if let Ok(n) = scan_fmt!(action, "cut {}", isize) {
+        } else if let Some(n) = scanf!(action, "cut {}", isize) {
             if n >= 0 {
                 for _ in 0..n {
                     let e = cards.pop_front().unwrap();
@@ -80,7 +81,7 @@ pub fn part_one() {
                     cards.push_front(e);
                 }
             }
-        } else if let Ok(n) = scan_fmt!(action, "deal with increment {}", usize) {
+        } else if let Some(n) = scanf!(action, "deal with increment {}", usize) {
             let remaining = cards.clone();
             let mut pos = 0;
             for e in remaining {

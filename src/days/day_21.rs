@@ -1,5 +1,6 @@
 use crate::utils::*;
 
+#[allow(unused)]
 pub fn run() {
     #[allow(unused_variables)]
     let input = include_str!("../input/21.txt");
@@ -21,9 +22,7 @@ pub fn run() {
     ];
     // J = D & (!A | !B | !C) & (H | E)
     for command in commands {
-        for c in command.chars() {
-            code.inputs.push(c as u8 as isize);
-        }
+        code.add_input(command);
         code.inputs.push(b'\n' as isize);
     }
     while let Some(c) = int_code(&mut code, true) {
@@ -46,9 +45,7 @@ pub fn part_one() {
     ];
     // J = D & (!A | !B | !C)
     for command in commands {
-        for c in command.chars() {
-            code.inputs.push(c as u8 as isize);
-        }
+        code.add_input(command);
         code.inputs.push(b'\n' as isize);
     }
     while let Some(c) = int_code(&mut code, true) {

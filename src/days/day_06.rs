@@ -23,8 +23,6 @@ pub fn run() {
                 .copied()
                 .chain(parent.get(p).copied())
         },
-        |_, _| 1,
-        |_| true,
         "YOU",
         &["SAN"],
     );

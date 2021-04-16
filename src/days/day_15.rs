@@ -9,6 +9,7 @@ fn dir_to_input(dir: Dir) -> isize {
     }
 }
 
+#[allow(unused)]
 pub fn run() {
     #[allow(unused_variables)]
     let input = include_str!("../input/15.txt");
@@ -45,7 +46,7 @@ pub fn run() {
                     assert_ne!(int_code(&mut code, true).unwrap(), 0);
                 }
                 2 => {
-                    area.insert(new_pos, '@');
+                    area.insert(new_pos, '.');
                     remaining.insert(new_pos);
                     next_dir = Some(dir);
 
@@ -66,9 +67,11 @@ pub fn run() {
         } else {
             let goal = *remaining.iter().next().unwrap();
             let path = a_star_search(
-                |p| Dir::all().map(move |dir| p + dir),
-                |_, _| 1,
-                |p| area.get(&p).map(|x| *x == '.').unwrap_or(false),
+                |p| {
+                    Dir::all()
+                        .map(move |dir| p + dir)
+                        .filter(|p| area.get(p) == Some(&'.'))
+                },
                 pos,
                 goal,
                 |p| manhattan_i(p, goal) as usize,
@@ -91,12 +94,10 @@ pub fn run() {
         .to_vec();
 
     let paths = dijkstra_search(
-        |p| Dir::all().map(move |dir| p + dir),
-        |_, _| 1,
         |p| {
-            area.get(&p)
-                .map(|x| *x == '.' || *x == '@')
-                .unwrap_or(false)
+            Dir::all()
+                .map(move |dir| p + dir)
+                .filter(|p| area.get(p) == Some(&'.'))
         },
         start,
         &goals,
@@ -144,7 +145,7 @@ pub fn part_one() {
                     assert_ne!(int_code(&mut code, true).unwrap(), 0);
                 }
                 2 => {
-                    area.insert(new_pos, '@');
+                    area.insert(new_pos, '.');
                     remaining.insert(new_pos);
                     next_dir = Some(dir);
 
@@ -165,9 +166,11 @@ pub fn part_one() {
         } else {
             let goal = *remaining.iter().next().unwrap();
             let path = a_star_search(
-                |p| Dir::all().map(move |dir| p + dir),
-                |_, _| 1,
-                |p| area.get(&p).map(|x| *x == '.').unwrap_or(false),
+                |p| {
+                    Dir::all()
+                        .map(move |dir| p + dir)
+                        .filter(|p| area.get(p) == Some(&'.'))
+                },
                 pos,
                 goal,
                 |p| manhattan_i(p, goal) as usize,
@@ -198,9 +201,11 @@ pub fn part_one() {
     }
 
     let path = a_star_search(
-        |p| Dir::all().map(move |dir| p + dir),
-        |_, _| 1,
-        |p| area.get(&p).map(|x| *x == '.').unwrap_or(false),
+        |p| {
+            Dir::all()
+                .map(move |dir| p + dir)
+                .filter(|p| area.get(p) == Some(&'.'))
+        },
         (0, 0),
         goal,
         |p| manhattan_i(p, goal) as usize,

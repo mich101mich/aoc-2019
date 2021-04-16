@@ -4,6 +4,7 @@ fn parse_chem(ch: &str) -> (usize, String) {
     scanf!(ch, "{} {}", usize, String).unwrap()
 }
 
+#[allow(unused)]
 pub fn run() {
     #[allow(unused_variables)]
     let input = include_str!("../input/14.txt");

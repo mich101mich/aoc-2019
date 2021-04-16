@@ -7,50 +7,51 @@ pub fn run() {
 
     let parsed = hashtag_grid(input);
 
-    let size = (parsed.len(), parsed[0].len());
+    let max_radius = parsed.w().max(parsed.h());
     let mut max = 0;
     let mut max_v = (0, 0);
     let mut max_200 = 0;
-    for (x, y) in grid_iterator(size) {
-        if !parsed[y][x] {
+    for (pos, &v) in parsed.grid_iter_index() {
+        if !v {
             continue;
         }
         let mut field = parsed.clone();
         let mut visible = 0;
         let mut vaporize_order = vec![];
-        for radius in 1..size.0.max(size.1) {
-            for ((mut nx, mut ny), (dx, dy)) in square_ring_delta_iterator((x, y), radius, size) {
+        for radius in 1..max_radius {
+            for (mut next_pos, (dx, dy)) in parsed.square_ring_delta_iterator(pos, radius) {
                 let mut angle = f32::atan2(dx as f32, -dy as f32);
                 angle += std::f32::consts::TAU;
                 angle %= std::f32::consts::TAU;
                 let angle = (angle * 100_000.0) as isize;
 
                 let mut order = 0;
-                if field[ny][nx] {
+                if field[next_pos] {
                     visible += 1;
-                    vaporize_order.push((order, angle, nx, ny));
+                    vaporize_order.push((order, angle, next_pos));
                     order += 1;
                 }
-                while let Some(p) = map_grid_bounds((nx as isize + dx, ny as isize + dy), size) {
-                    nx = p.0;
-                    ny = p.1;
-                    if field[ny][nx] {
+                while let Some(p) =
+                    parsed.map_bounds((next_pos.0 as isize + dx, next_pos.1 as isize + dy))
+                {
+                    next_pos = p;
+                    if field[next_pos] {
                         if order == 0 {
                             visible += 1;
                         }
-                        vaporize_order.push((order, angle, nx, ny));
+                        vaporize_order.push((order, angle, next_pos));
                         order += 1;
-                        field[ny][nx] = false;
+                        field[next_pos] = false;
                     }
                 }
             }
         }
         if visible > max {
             max = visible;
-            max_v = (x, y);
+            max_v = pos;
 
             vaporize_order.sort_unstable();
-            max_200 = vaporize_order[199].2 * 100 + vaporize_order[199].3;
+            max_200 = vaporize_order[199].2 .0 * 100 + vaporize_order[199].2 .1;
         }
     }
 
@@ -64,41 +65,41 @@ pub fn part_one() {
 
     let parsed = hashtag_grid(input);
 
-    let size = (parsed.len(), parsed[0].len());
+    let max_radius = parsed.w().max(parsed.h());
     let mut max = 0;
     let mut max_v = (0, 0);
-    for (x, y) in grid_iterator(size) {
-        if !parsed[y][x] {
+    for (pos, &v) in parsed.grid_iter_index() {
+        if !v {
             continue;
         }
         let mut field = parsed.clone();
         let mut visible = 0;
-        for radius in 1..size.0.max(size.1) {
-            for ((mut nx, mut ny), (dx, dy)) in square_ring_delta_iterator((x, y), radius, size) {
+        for radius in 1..max_radius {
+            for (mut next_pos, (dx, dy)) in parsed.square_ring_delta_iterator(pos, radius) {
                 let mut found = false;
-                if field[ny][nx] {
+                if field[next_pos] {
                     visible += 1;
                     found = true;
                 }
-                while let Some(p) = map_grid_bounds((nx as isize + dx, ny as isize + dy), size) {
-                    nx = p.0;
-                    ny = p.1;
-                    if field[ny][nx] {
+                while let Some(p) =
+                    parsed.map_bounds((next_pos.0 as isize + dx, next_pos.1 as isize + dy))
+                {
+                    next_pos = p;
+                    if field[next_pos] {
                         if !found {
                             visible += 1;
                             found = true;
                         }
-                        field[ny][nx] = false;
+                        field[next_pos] = false;
                     }
                 }
             }
         }
         if visible > max {
             max = visible;
-            max_v = (x, y);
+            max_v = pos;
         }
     }
 
     pv!(max);
-    pv!(max_v);
 }

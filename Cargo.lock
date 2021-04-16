@@ -358,7 +358,8 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 [[package]]
 name = "sscanf"
 version = "0.1.1"
-source = "git+https://github.com/mich101mich/sscanf#2de92bbf5c3d50746b2eff23451c3d21c9f58661"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d05d7c13dcf4325ea939cbe27f025aac36c91e7682af5fe9fe0ad3be896f85b2"
 dependencies = [
  "const_format",
  "regex",
@@ -368,7 +369,8 @@ dependencies = [
 [[package]]
 name = "sscanf_macro"
 version = "0.1.1"
-source = "git+https://github.com/mich101mich/sscanf#2de92bbf5c3d50746b2eff23451c3d21c9f58661"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9f3dda634a443937745417e8ae6dee56e35e6b37c621aeab5721d8236600144e"
 dependencies = [
  "proc-macro2",
  "quote",

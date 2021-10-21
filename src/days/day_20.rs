@@ -72,19 +72,19 @@ pub fn run() {
 
     let neigh = maze.manhattan();
     let path = a_star_search(
-        |(p, l)| {
-            graph[&p].iter().filter_map(move |&(pos, cost)| {
+        |(pos, layer), out| {
+            let outer = pos.0 < 5 || pos.1 < 5 || w - pos.0 < 5 || h - pos.1 < 5;
+            for &(p, cost) in graph[&pos].iter() {
                 if cost == 1 {
-                    let outer = p.0 < 5 || p.1 < 5 || w - p.0 < 5 || h - p.1 < 5;
-                    if outer && l == 0 {
-                        None
-                    } else {
-                        Some(((pos, if outer { l - 1 } else { l + 1 }), cost))
+                    if !outer {
+                        out.push(((p, layer + 1), cost));
+                    } else if layer != 0 {
+                        out.push(((p, layer - 1), cost));
                     }
                 } else {
-                    Some(((pos, l), cost))
+                    out.push(((p, layer), cost));
                 }
-            })
+            }
         },
         start,
         goal,
@@ -105,7 +105,17 @@ pub fn part_one() {
     let (graph, start, goal) = portal_graph(&maze);
 
     let neigh = maze.manhattan();
-    let path = a_star_search(|p| graph[&p].iter(), start, goal, |_| 0).unwrap();
+    let path = a_star_search(
+        |pos, out| {
+            for p in graph[&pos].iter() {
+                out.push(p);
+            }
+        },
+        start,
+        goal,
+        |_| 0,
+    )
+    .unwrap();
 
     pv!(path.cost);
 }

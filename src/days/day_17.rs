@@ -84,7 +84,7 @@ pub fn run() {
                 continue;
             }
             let slice = &path_str[..my_len];
-            let path_array = multi_split(&path_array, slice, ',');
+            let path_array = multi_split(path_array, slice, ',');
             if sub_routines.is_empty() {
                 if path_array.is_empty() {
                     **my_str = slice;
@@ -164,6 +164,6 @@ pub fn part_one() {
             sum += pos.0 * pos.1;
         }
     }
-    grid.print_hashtag();
+    // grid.print_hashtag();
     pv!(sum);
 }

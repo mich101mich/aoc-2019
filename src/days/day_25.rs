@@ -24,7 +24,7 @@ pub fn part_one() {
 
     loop {
         backup.push(code.clone());
-        let failed = run(&mut code, &mut text);
+        let failed = execute(&mut code, &mut text);
 
         if failed {
             backup.pop();
@@ -101,7 +101,7 @@ pub fn part_one() {
         }
     }
 
-    run(&mut code, &mut text);
+    execute(&mut code, &mut text);
 
     let items = text
         .lines()
@@ -133,7 +133,7 @@ fn try_items(code: &mut IntProgram, items: &[String], text: &mut String) -> bool
         false
     } else {
         code.add_input("south\n");
-        let res = run(code, text);
+        let res = execute(code, text);
         if res {
             println!(
                 "{}",
@@ -151,7 +151,7 @@ fn try_items(code: &mut IntProgram, items: &[String], text: &mut String) -> bool
     }
 }
 
-fn run(code: &mut IntProgram, text: &mut String) -> bool {
+fn execute(code: &mut IntProgram, text: &mut String) -> bool {
     text.clear();
     loop {
         let c = match step_int_code(code, true) {

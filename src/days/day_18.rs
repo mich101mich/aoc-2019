@@ -21,12 +21,12 @@ pub fn run() {
 
     let mut key_pos = HashMap::new();
     let mut door_pos = HashMap::new();
-    for c in 0..26u8 {
-        if let Some(pos) = maze.find((c + b'a') as char) {
-            key_pos.insert(pos, c);
+    for c in b'a'..=b'z' {
+        if let Some(pos) = maze.find(c as char) {
+            key_pos.insert(pos, c - b'a');
         }
-        if let Some(pos) = maze.find((c + b'A') as char) {
-            door_pos.insert(pos, c);
+        if let Some(pos) = maze.find((c - b'a' + b'A') as char) {
+            door_pos.insert(pos, c - b'a');
         }
     }
 
@@ -54,27 +54,27 @@ pub fn run() {
 
     let goal = (START, goal_keys);
 
+    let num_keys = key_pos.len();
+
     let path = a_star_search(
-        |(pos_arr, keys)| {
-            let mut targets = vec![];
+        |(pos_arr, keys), out| {
             if keys == goal_keys {
-                targets.push((goal, 0));
-                return targets.into_iter();
+                out.push((goal, 0));
+                return;
             }
             for (i, pos) in pos_arr.iter().enumerate() {
                 for (k, (pred, cost)) in costs[pos].iter() {
                     if keys & (1 << *k) == 0 && pred & !keys == 0 {
                         let mut new_pos = pos_arr;
                         new_pos[i] = *k;
-                        targets.push(((new_pos, keys | (1 << k)), *cost));
+                        out.push(((new_pos, keys | (1 << k)), *cost));
                     }
                 }
             }
-            targets.into_iter()
         },
         (START, 0),
         goal,
-        |_| 0,
+        |(_, keys)| num_keys - keys.count_ones() as usize,
     );
 
     pv!(path.unwrap().cost);
@@ -94,12 +94,12 @@ pub fn part_one() {
 
     let mut key_pos = HashMap::new();
     let mut door_pos = HashMap::new();
-    for c in 0..26u8 {
-        if let Some(pos) = maze.find((c + b'a') as char) {
-            key_pos.insert(pos, c);
+    for c in b'a'..=b'z' {
+        if let Some(pos) = maze.find(c as char) {
+            key_pos.insert(pos, c - b'a');
         }
-        if let Some(pos) = maze.find((c + b'A') as char) {
-            door_pos.insert(pos, c);
+        if let Some(pos) = maze.find((c - b'a' + b'A') as char) {
+            door_pos.insert(pos, c - b'a');
         }
     }
     let goal_keys = key_pos.values().fold(0u32, |total, v| total | (1 << v));
@@ -128,12 +128,12 @@ pub fn part_one() {
     }
 
     let path = a_star_search(
-        |(pos, keys)| {
-            costs[&pos]
-                .iter()
-                .filter(move |(k, _)| keys & (1 << **k) == 0)
-                .filter(move |(_, (pred, _))| pred & !keys == 0)
-                .map(move |(&k, (_, cost))| ((k, keys | (1 << k)), *cost))
+        |(pos, keys), out| {
+            for (k, (pred, cost)) in costs[&pos].iter() {
+                if keys & (1 << *k) == 0 && pred & !keys == 0 {
+                    out.push(((*k, keys | (1 << k)), *cost));
+                }
+            }
         },
         (START, 0),
         (START, goal_keys | (1 << START)),

@@ -6,7 +6,7 @@ if [ $PART = 2 ]; then
     FUNCTION=run
 fi
 
-echo "#![allow(unused_imports)]
+echo "#![allow(unused_imports, clippy::while_let_on_iterator)]
 
 #[macro_use]
 mod utils;

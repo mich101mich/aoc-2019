@@ -15,13 +15,15 @@ pub fn run() {
     }
 
     let path = dijkstra_search(
-        |p| {
-            children
-                .get(p)
-                .map(|v| v.iter())
-                .unwrap_or_else(|| [].iter())
-                .copied()
-                .chain(parent.get(p).copied())
+        |p, out| {
+            if let Some(children) = children.get(p) {
+                for c in children {
+                    out.push(*c);
+                }
+            }
+            if let Some(p) = parent.get(p) {
+                out.push(p);
+            }
         },
         "YOU",
         &["SAN"],

@@ -67,10 +67,13 @@ pub fn run() {
         } else {
             let goal = *remaining.iter().next().unwrap();
             let path = a_star_search(
-                |p| {
-                    Dir::all()
-                        .map(move |dir| p + dir)
-                        .filter(|p| area.get(p) == Some(&'.'))
+                |pos, out| {
+                    for d in Dir::all() {
+                        let p = pos + d;
+                        if area.get(&p) == Some(&'.') {
+                            out.push(p);
+                        }
+                    }
                 },
                 pos,
                 goal,
@@ -94,10 +97,13 @@ pub fn run() {
         .to_vec();
 
     let paths = dijkstra_search(
-        |p| {
-            Dir::all()
-                .map(move |dir| p + dir)
-                .filter(|p| area.get(p) == Some(&'.'))
+        |pos, out| {
+            for d in Dir::all() {
+                let p = pos + d;
+                if area.get(&p) == Some(&'.') {
+                    out.push(p);
+                }
+            }
         },
         start,
         &goals,
@@ -166,10 +172,13 @@ pub fn part_one() {
         } else {
             let goal = *remaining.iter().next().unwrap();
             let path = a_star_search(
-                |p| {
-                    Dir::all()
-                        .map(move |dir| p + dir)
-                        .filter(|p| area.get(p) == Some(&'.'))
+                |pos, out| {
+                    for d in Dir::all() {
+                        let p = pos + d;
+                        if area.get(&p) == Some(&'.') {
+                            out.push(p);
+                        }
+                    }
                 },
                 pos,
                 goal,
@@ -201,10 +210,13 @@ pub fn part_one() {
     }
 
     let path = a_star_search(
-        |p| {
-            Dir::all()
-                .map(move |dir| p + dir)
-                .filter(|p| area.get(p) == Some(&'.'))
+        |pos, out| {
+            for d in Dir::all() {
+                let p = pos + d;
+                if area.get(&p) == Some(&'.') {
+                    out.push(p);
+                }
+            }
         },
         (0, 0),
         goal,

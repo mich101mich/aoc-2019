@@ -1,12 +1,13 @@
 DAY=$1
 echo "use crate::utils::*;
 
+#[allow(unused)]
 pub fn run() {
-	#[allow(unused_variables)]
-	let input = include_str!(\"../input/$DAY.txt\");
-	// let input = "";
-	
-	let parsed = input
+    #[allow(unused_variables)]
+    let input = include_str!(\"../input/$DAY.txt\");
+    // let input = "";
+    
+    let parsed = input
         //.lines()
         //.chars()
         //.map(|l| l.chars().to_vec())
@@ -15,31 +16,32 @@ pub fn run() {
         //.to_vec()
         //.sum::<isize>()
         //.parse::<isize>()
-		;
-	
-	// let mut code = IntProgram::new(input, vec![]);
-	// int_code(&mut code, false);
-	
-	//pv!(parsed);
-	
+        ;
+
+    // let mut code = IntProgram::new(input, vec![]);
+    // int_code(&mut code, false);
+
+    //pv!(parsed);
+    
 }" > src/days/day_$DAY.rs
 
-echo "#![allow(unused_imports)]
-
-#[macro_use]
-extern crate scan_fmt;
+echo "#![allow(unused_imports, clippy::while_let_on_iterator)]
 
 #[macro_use]
 mod utils;
-mod days;
-use days::*;
+mod days {
+    pub mod day_$DAY;
+}
+use days::day_$DAY;
 
 fn main() {
     day_$DAY::run();
 }" > src/main.rs
 
-echo "pub mod day_$DAY;" > src/days/mod.rs
-
 touch src/input/$DAY.txt
 
-code src/days/day_$DAY.rs src/input/$DAY.txt 
+if [ -f cmd.exe ]; then
+    cmd.exe /c code src/days/day_$DAY.rs src/input/$DAY.txt
+else
+    code src/days/day_$DAY.rs src/input/$DAY.txt
+fi
